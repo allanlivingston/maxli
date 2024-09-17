@@ -1,25 +1,56 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind } from "lucide-react"
+import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind, Trash2, Plus, Minus } from "lucide-react"
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { ShoppingCart as Cart } from "./ShoppingCart"
 import { useCart } from "@/hooks/useCart"
 import Image from 'next/image'
 import { ebikeBatteries, surfboardBatteries, BatteryProduct } from '@/lib/productData'
+import { MiniCart } from '@/components/MiniCart';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export function EnhancedNorcalBatteryStore() {
   const [activeTab, setActiveTab] = useState("home")
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeBatteryType, setActiveBatteryType] = useState("ebike")
   const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart } = useCart()
+  const [isCartHovered, setIsCartHovered] = useState(false);
+  const cartRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCartEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setIsCartHovered(true);
+  };
+
+  const handleCartLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setIsCartHovered(false);
+    }, 300); // 300ms delay before hiding the MiniCart
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // Calculate total number of items in the cart
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
+  console.log('Rendering EnhancedNorcalBatteryStore');
+  console.log('Cart Items:', cartItems);
+  console.log('Cart Items Count:', cartItemsCount);
+  console.log('Is Cart Hovered:', isCartHovered);
 
   const BatteryCard = ({ battery, color }: { battery: BatteryProduct, color: string }) => {
     const imagePath = `/images/batteries/${battery.type}/${battery.imageName}`;
@@ -28,45 +59,47 @@ export function EnhancedNorcalBatteryStore() {
       <Tooltip.Provider delayDuration={300}>
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
-            <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
-              <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
-                <CardTitle className={`${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
-                  <battery.icon className="mr-2 h-5 w-4" />
-                  {battery.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="aspect-square bg-stone-700 flex items-center justify-center rounded-md mb-4 overflow-hidden">
-                  <Image 
-                    src={imagePath}
-                    alt={battery.name} 
-                    width={200}
-                    height={200}
-                    className="object-cover w-full h-full" 
-                  />
-                </div>
-                <p className="text-stone-300">Capacity: {battery.capacity}</p>
-                <p className={`font-bold mt-2 ${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
-                  ${battery.price.toFixed(2)}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className={`w-full ${battery.type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
-                  onClick={() => addToCart({
-                    ...battery,
-                    imagePath
-                  })}
-                >
-                  Add to Cart
-                </Button>
-              </CardFooter>
-            </Card>
+            <div className="relative">  {/* Add this wrapper div */}
+              <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
+                <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
+                  <CardTitle className={`${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
+                    <battery.icon className="mr-2 h-5 w-4" />
+                    {battery.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="aspect-square bg-stone-700 flex items-center justify-center rounded-md mb-4 overflow-hidden">
+                    <Image 
+                      src={imagePath}
+                      alt={battery.name} 
+                      width={200}
+                      height={200}
+                      className="object-cover w-full h-full" 
+                    />
+                  </div>
+                  <p className="text-stone-300">Capacity: {battery.capacity}</p>
+                  <p className={`font-bold mt-2 ${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
+                    ${battery.price.toFixed(2)}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    className={`w-full ${battery.type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
+                    onClick={() => addToCart({
+                      ...battery,
+                      imagePath
+                    })}
+                  >
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Content 
               className="bg-stone-700 text-stone-100 p-4 rounded-md shadow-lg max-w-xs z-50"
-              sideOffset={5}
+              sideOffset={-150}  // Adjust this value to position the tooltip vertically
               side="top"
               align="center"
             >
@@ -75,7 +108,6 @@ export function EnhancedNorcalBatteryStore() {
               <p>Price: ${battery.price.toFixed(2)}</p>
               <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
               <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
-              <Tooltip.Arrow className="fill-stone-700" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>
@@ -101,14 +133,37 @@ export function EnhancedNorcalBatteryStore() {
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
               <Menu className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => setActiveTab("cart")} className="relative">
-              <ShoppingCart className="h-6 w-6" />
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-emerald-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
-                  {cartItemsCount}
-                </span>
+            <div className="relative" ref={cartRef}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setActiveTab("cart")} 
+                className="relative"
+                onMouseEnter={handleCartEnter}
+                onMouseLeave={handleCartLeave}
+              >
+                <ShoppingCart className="h-6 w-6" />
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-emerald-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                    {cartItemsCount}
+                  </span>
+                )}
+              </Button>
+              {cartItemsCount > 0 && isCartHovered && (
+                <div 
+                  className="absolute right-0 mt-2 w-72 bg-stone-800 border border-stone-700 rounded-md shadow-lg z-50"
+                  style={{ transform: 'translateX(-25%)' }}
+                  onMouseEnter={handleCartEnter}
+                  onMouseLeave={handleCartLeave}
+                >
+                  <MiniCart 
+                    items={cartItems} 
+                    removeFromCart={removeFromCart}
+                    updateQuantity={updateQuantity}
+                  />
+                </div>
               )}
-            </Button>
+            </div>
           </div>
         </div>
         {menuOpen && (

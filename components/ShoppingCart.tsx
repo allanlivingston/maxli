@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { CartItem } from "@/hooks/useCart"
 import { Minus, Plus, X, Lock } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js';
+import { MiniCart } from '@/components/MiniCart';
 
 // Make sure to replace with your actual Stripe publishable key
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
