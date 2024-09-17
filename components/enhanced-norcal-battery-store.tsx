@@ -33,7 +33,7 @@ export function EnhancedNorcalBatteryStore() {
           <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
             <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
               <CardTitle className={`text-${color}-300 flex items-center`}>
-                <battery.icon className="mr-2 h-5 w-5" />
+                <battery.icon className="mr-2 h-5 w-4" />
                 {battery.name}
               </CardTitle>
             </CardHeader>
@@ -46,7 +46,9 @@ export function EnhancedNorcalBatteryStore() {
                 />
               </div>
               <p className="text-stone-300">Capacity: {battery.capacity}</p>
-              <p className={`font-bold mt-2 text-${color}-300`}>${battery.price}</p>
+              <p className={`font-bold mt-2 ${type === 'surfboard' ? 'text-blue-100' : `text-${color}-300`} text-lg`}>
+                ${battery.price}
+              </p>
             </CardContent>
             <CardFooter>
               <Button className={`w-full bg-${color}-600 hover:bg-${color}-700`}>Add to Cart</Button>
@@ -153,12 +155,12 @@ export function EnhancedNorcalBatteryStore() {
             <h2 className="text-2xl md:text-3xl font-bold text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>Powered by the Rideout Spirit—Make What You Have Better.</h2>
             <div className="bg-stone-800 p-6 rounded-lg shadow-lg">
               <p className="text-stone-300 mb-4">
-              Op Point is more than just batteries; it's about embracing the rideout spirit and making the most of what you’ve got. From early morning surf checks to late-night scooter sessions and e-bike commutes, our roots are in garage workshops and the untamed streets of NorCal. We build power solutions that keep you rolling, wherever your journey takes you.</p>
+              Op Point is more than just batteries; it's about embracing the rideout spirit and making the most of what you've got. From early morning surf checks to late-night scooter sessions and e-bike commutes, our roots are in garage workshops and the untamed streets of NorCal. We build power solutions that keep you rolling, wherever your journey takes you.</p>
               <p className="text-stone-300 mb-4">
-              We’re here for those who don’t just buy new—those who upgrade, enhance, and ride what they’ve built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you're pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you’re just getting started, we’re here to help you build it exactly how you want it.
+              We're here for those who don't just buy new—those who upgrade, enhance, and ride what they've built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you're pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you're just getting started, we're here to help you build it exactly how you want it.
               </p>
               <p className="text-stone-300">
-              Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with NorCal Power, you’re not just riding—you’re creating, upgrading, and living the ride your way.              </p>
+              Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with OPbattery, you're not just riding—you're creating, upgrading, and living the ride your way.              </p>
             </div>
           </div>
         )}
@@ -174,7 +176,7 @@ export function EnhancedNorcalBatteryStore() {
                 <p><strong>Email:</strong> hello@opbattery.com</p>
               </div>
               <p className="text-stone-300 mt-4">
-                Drop by our solar-powered showroom to test our batteries, chat with our team of local outdoor enthusiasts, and maybe share a cup of locally roasted, organic coffee while we help you find the perfect power solution for your next NorCal adventure.
+                Drop by our solar-powered showroom to test our batteries, chat with our team of local outdoor enthusiasts, and maybe share a cup of locally roasted, organic coffee while we help you find the perfect power solution for your next adventure.
               </p>
             </div>
           </div>
@@ -198,7 +200,7 @@ export function EnhancedNorcalBatteryStore() {
             </div>
             <div>
               <h3 className="font-bold mb-2 text-emerald-400">Join Our Community</h3>
-              <p className="text-stone-300 mb-2">Sign up for sustainable tips and exclusive NorCal offers</p>
+              <p className="text-stone-300 mb-2">Sign up for sustainable tips and exclusive OPbattery offers</p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Input type="email" placeholder="Enter your email" className="bg-stone-700 border-stone-600 text-stone-100 flex-grow" />
                 <Button className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">Stay Connected</Button>
