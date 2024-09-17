@@ -1,5 +1,6 @@
 import React from 'react';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Button } from "@/components/ui/button"
 
 type CartItem = {
   id: string | number;
@@ -12,9 +13,10 @@ type MiniCartProps = {
   items: CartItem[];
   removeFromCart: (id: string | number) => void;
   updateQuantity: (id: string | number, quantity: number) => void;
+  onGoToCart: () => void; // Add this prop
 };
 
-export function MiniCart({ items, removeFromCart, updateQuantity }: MiniCartProps) {
+export function MiniCart({ items, removeFromCart, updateQuantity, onGoToCart }: MiniCartProps) {
   console.log('MiniCart rendering', items);
   
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -58,6 +60,13 @@ export function MiniCart({ items, removeFromCart, updateQuantity }: MiniCartProp
       <div className="mt-4 pt-3 border-t border-stone-700 font-bold text-emerald-300">
         Total: ${total.toFixed(2)}
       </div>
+      <Button 
+        onClick={onGoToCart}
+        className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors duration-200 flex items-center justify-center"
+      >
+        <ShoppingCart className="mr-2 h-4 w-4" />
+        Go to Cart
+      </Button>
     </div>
   );
 }
