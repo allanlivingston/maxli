@@ -1,6 +1,3 @@
-//need to populate these with the actual data
-import { Battery, Sun, Wind } from 'lucide-react'
-
 import { Battery, Sun, Wind } from 'lucide-react'
 
 export interface BatteryProduct {
@@ -16,68 +13,68 @@ export interface BatteryProduct {
 export const ebikeBatteries: BatteryProduct[] = [
   {
     id: 1,
-    name: "Eco Rider",
+    name: "Redwood Rideout",
     capacity: "500Wh",
     price: 299.99,
     icon: Battery,
     type: 'ebike',
-    imageName: 'eco-rider.jpg'
+    imageName: 'redwood-rideout.jpg'
   },
   {
     id: 2,
-    name: "Urban Commuter",
+    name: "Sequoia Scrambler",
     capacity: "750Wh",
     price: 399.99,
     icon: Sun,
     type: 'ebike',
-    imageName: 'urban-commuter.jpg'
+    imageName: 'sequoia-scrambler.jpg'
   },
   {
     id: 3,
-    name: "Mountain Explorer",
+    name: "Coastal Cruiser",
     capacity: "1000Wh",
     price: 499.99,
     icon: Wind,
     type: 'ebike',
-    imageName: 'mountain-explorer.jpg'
+    imageName: 'coastal-cruiser.jpg'
   },
   {
     id: 4,
-    name: "Long Range Cruiser",
+    name: "Sierra OP",
     capacity: "1200Wh",
     price: 599.99,
     icon: Battery,
     type: 'ebike',
-    imageName: 'long-range-cruiser.jpg'
+    imageName: 'sierra-op.jpg'
   }
 ];
 
 export const surfboardBatteries: BatteryProduct[] = [
   {
     id: 101,
-    name: "Wave Rider",
+    name: "Mavericks Pro",
     capacity: "200Wh",
     price: 199.99,
     icon: Wind,
     type: 'surfboard',
-    imageName: 'wave-rider.jpg'
+    imageName: 'mavericks-pro.jpg'
   },
   {
     id: 102,
-    name: "Ocean Explorer",
+    name: "Santa Cruz Glider",
     capacity: "300Wh",
     price: 249.99,
     icon: Sun,
     type: 'surfboard',
-    imageName: 'ocean-explorer.jpg'
+    imageName: 'santa-cruz-glider.jpg'
   },
   {
     id: 103,
-    name: "Surf Pro",
+    name: "Big Sur Endurance",
     capacity: "400Wh",
     price: 299.99,
     icon: Battery,
     type: 'surfboard',
-    imageName: 'surf-pro.jpg'
+    imageName: 'big-sur-endurance.jpg'
   }
 ];

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { CartItem } from "@/hooks/useCart"
-import { Minus, Plus, X } from 'lucide-react'
+import { Minus, Plus, X, Lock } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js';
 
 // Make sure to replace with your actual Stripe publishable key
@@ -17,7 +17,10 @@ interface ShoppingCartProps {
 
 export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart }: ShoppingCartProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const estimatedTax = subtotal * 0.08; // 8% tax rate, adjust as needed
+  const estimatedShipping = subtotal > 500 ? 0 : 15; // Free shipping over $500
+  const total = subtotal + estimatedTax + estimatedShipping;
 
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -54,7 +57,7 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         <p className="text-stone-300">Your cart is empty.</p>
       ) : (
         <>
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
             {items.map(item => (
               <div key={item.id} className="flex items-center space-x-4 bg-stone-700 p-4 rounded-lg">
                 <div className="flex-shrink-0 w-16 h-16 relative">
@@ -102,27 +105,40 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
             ))}
           </div>
           <div className="mt-8 space-y-4">
-            <div className="flex justify-between items-center text-lg font-semibold">
+            <div className="flex justify-between items-center text-lg">
               <span>Subtotal:</span>
-              <span className="text-emerald-300">${total.toFixed(2)}</span>
+              <span className="text-emerald-300">${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center text-sm text-stone-400">
-              <span>Shipping:</span>
-              <span>Calculated at checkout</span>
+              <span>Estimated Tax:</span>
+              <span>${estimatedTax.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm text-stone-400">
+              <span>Estimated Shipping:</span>
+              <span>${estimatedShipping.toFixed(2)}</span>
             </div>
             <div className="border-t border-stone-600 pt-4 flex justify-between items-center text-xl font-bold">
-              <span>Total:</span>
+              <span>Estimated Total:</span>
               <span className="text-emerald-300">${total.toFixed(2)}</span>
             </div>
           </div>
           <div className="mt-8 space-y-4">
             <Button 
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold"
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center"
               onClick={handleCheckout}
               disabled={isLoading || items.length === 0}
             >
               {isLoading ? 'Processing...' : 'Proceed to Checkout'}
+              <Lock className="ml-2 h-4 w-4" />
             </Button>
+            <div className="flex justify-center space-x-4">
+              <Image src="/visa.png" alt="Visa" width={40} height={25} />
+              <Image src="/mastercard.png" alt="Mastercard" width={40} height={25} />
+              <Image src="/amex.png" alt="American Express" width={40} height={25} />
+            </div>
+            <p className="text-xs text-center text-stone-400">
+              Secure checkout powered by Stripe. We never store your payment information.
+            </p>
             <Button 
               variant="outline" 
               className="w-full text-stone-300 hover:bg-stone-700"

@@ -10,6 +10,7 @@ import * as Tooltip from '@radix-ui/react-tooltip'
 import { ShoppingCart as Cart } from "./ShoppingCart"
 import { useCart } from "@/hooks/useCart"
 import Image from 'next/image'
+import { ebikeBatteries, surfboardBatteries, BatteryProduct } from '@/lib/productData'
 
 export function EnhancedNorcalBatteryStore() {
   const [activeTab, setActiveTab] = useState("home")
@@ -20,21 +21,8 @@ export function EnhancedNorcalBatteryStore() {
   // Calculate total number of items in the cart
   const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
-  const ebikeBatteries = [
-    { id: 1, name: "Redwood Rideout", capacity: "400Wh", price: 299, icon: Trees },
-    { id: 2, name: "Sequoia Scrambler", capacity: "600Wh", price: 399, icon: Trees },
-    { id: 3, name: "Coastal Cruiser", capacity: "800Wh", price: 499, icon: Waves },
-    { id: 4, name: "Sierra OP", capacity: "500Wh", price: 449, icon: Wind },
-  ]
-
-  const surfboardBatteries = [
-    { id: 1, name: "Mavericks Pro", capacity: "200Wh", price: 199, icon: Waves },
-    { id: 2, name: "Santa Cruz Glider", capacity: "300Wh", price: 249, icon: Sun },
-    { id: 3, name: "Big Sur Endurance", capacity: "400Wh", price: 299, icon: Wind },
-  ]
-
-  const BatteryCard = ({ battery, color, type }) => {
-    const imagePath = `/images/batteries/${type}/${battery.name.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+  const BatteryCard = ({ battery, color }: { battery: BatteryProduct, color: string }) => {
+    const imagePath = `/images/batteries/${battery.type}/${battery.imageName}`;
 
     return (
       <Tooltip.Provider delayDuration={300}>
@@ -42,7 +30,7 @@ export function EnhancedNorcalBatteryStore() {
           <Tooltip.Trigger asChild>
             <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
               <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
-                <CardTitle className={`${type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
+                <CardTitle className={`${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
                   <battery.icon className="mr-2 h-5 w-4" />
                   {battery.name}
                 </CardTitle>
@@ -58,20 +46,16 @@ export function EnhancedNorcalBatteryStore() {
                   />
                 </div>
                 <p className="text-stone-300">Capacity: {battery.capacity}</p>
-                <p className={`font-bold mt-2 ${type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
-                  ${battery.price}
+                <p className={`font-bold mt-2 ${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
+                  ${battery.price.toFixed(2)}
                 </p>
               </CardContent>
               <CardFooter>
                 <Button 
-                  className={`w-full ${type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
+                  className={`w-full ${battery.type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
                   onClick={() => addToCart({
-                    id: battery.id,
-                    name: battery.name,
-                    price: battery.price,
-                    type: type,
-                    capacity: battery.capacity,
-                    imagePath: imagePath
+                    ...battery,
+                    imagePath
                   })}
                 >
                   Add to Cart
@@ -88,7 +72,7 @@ export function EnhancedNorcalBatteryStore() {
             >
               <h3 className="font-bold mb-2">{battery.name}</h3>
               <p>Capacity: {battery.capacity}</p>
-              <p>Price: ${battery.price}</p>
+              <p>Price: ${battery.price.toFixed(2)}</p>
               <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
               <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
               <Tooltip.Arrow className="fill-stone-700" />
@@ -149,14 +133,14 @@ export function EnhancedNorcalBatteryStore() {
               <TabsContent value="ebike">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   {ebikeBatteries.map((battery) => (
-                    <BatteryCard key={battery.id} battery={battery} color="emerald" type="ebike" />
+                    <BatteryCard key={battery.id} battery={battery} color="emerald" />
                   ))}
                 </div>
               </TabsContent>
               <TabsContent value="surfboard">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {surfboardBatteries.map((battery) => (
-                    <BatteryCard key={battery.id} battery={battery} color="blue" type="surfboard" />
+                    <BatteryCard key={battery.id} battery={battery} color="blue" />
                   ))}
                 </div>
               </TabsContent>

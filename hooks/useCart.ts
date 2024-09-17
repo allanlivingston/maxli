@@ -5,13 +5,14 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  type: string;  // Add this to distinguish between ebike and surfboard batteries
-  capacity: string;  // Add this if you want to display capacity in the cart
-  imagePath: string;  // Add this field
+  type: string;
+  capacity: string;
+  imagePath: string;
 }
 
 export function useCart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [savedItems, setSavedItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
@@ -28,22 +29,16 @@ export function useCart() {
     setCartItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(i => i.id === item.id);
       if (existingItemIndex > -1) {
-        // If item exists, create a new array with the updated item
         return prevItems.map((i, index) => 
           index === existingItemIndex ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
-      // If item doesn't exist, add it to the array
       return [...prevItems, { ...item, quantity: 1 }];
     });
   };
 
   const removeFromCart = (id: number) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
   };
 
   const updateQuantity = (id: number, quantity: number) => {
@@ -54,5 +49,31 @@ export function useCart() {
     );
   };
 
-  return { cartItems, addToCart, removeFromCart, updateQuantity, clearCart };
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const saveForLater = (id: number) => {
+    setCartItems(prevItems => {
+      const itemToSave = prevItems.find(item => item.id === id);
+      if (itemToSave) {
+        setSavedItems(prevSaved => [...prevSaved, itemToSave]);
+        return prevItems.filter(item => item.id !== id);
+      }
+      return prevItems;
+    });
+  };
+
+  const moveToCart = (id: number) => {
+    setSavedItems(prevSaved => {
+      const itemToMove = prevSaved.find(item => item.id === id);
+      if (itemToMove) {
+        setCartItems(prevItems => [...prevItems, itemToMove]);
+        return prevSaved.filter(item => item.id !== id);
+      }
+      return prevSaved;
+    });
+  };
+
+  return { cartItems, addToCart, removeFromCart, updateQuantity, clearCart, saveForLater, moveToCart, savedItems };
 }
