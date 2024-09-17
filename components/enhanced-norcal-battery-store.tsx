@@ -151,8 +151,7 @@ export function EnhancedNorcalBatteryStore() {
               </Button>
               {cartItemsCount > 0 && isCartHovered && (
                 <div 
-                  className="absolute right-0 mt-2 w-72 bg-stone-800 border border-stone-700 rounded-md shadow-lg z-50"
-                  style={{ transform: 'translateX(-25%)' }}
+                  className="absolute left-full ml-2 top-0 w-72 bg-stone-100 border border-stone-300 rounded-md shadow-lg z-50"
                   onMouseEnter={handleCartEnter}
                   onMouseLeave={handleCartLeave}
                 >
