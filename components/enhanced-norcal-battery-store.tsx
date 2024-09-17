@@ -7,11 +7,18 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind } from "lucide-react"
 import * as Tooltip from '@radix-ui/react-tooltip'
+import { ShoppingCart as Cart } from "./ShoppingCart"
+import { useCart } from "@/hooks/useCart"
+import Image from 'next/image'
 
 export function EnhancedNorcalBatteryStore() {
   const [activeTab, setActiveTab] = useState("home")
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeBatteryType, setActiveBatteryType] = useState("ebike")
+  const { cartItems, addToCart, removeFromCart, updateQuantity, clearCart } = useCart()
+
+  // Calculate total number of items in the cart
+  const cartItemsCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   const ebikeBatteries = [
     { id: 1, name: "Redwood Rideout", capacity: "400Wh", price: 299, icon: Trees },
@@ -26,53 +33,71 @@ export function EnhancedNorcalBatteryStore() {
     { id: 3, name: "Big Sur Endurance", capacity: "400Wh", price: 299, icon: Wind },
   ]
 
-  const BatteryCard = ({ battery, color, type }) => (
-    <Tooltip.Provider delayDuration={300}>
-      <Tooltip.Root>
-        <Tooltip.Trigger asChild>
-          <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
-            <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
-              <CardTitle className={`text-${color}-300 flex items-center`}>
-                <battery.icon className="mr-2 h-5 w-4" />
-                {battery.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <div className="aspect-square bg-stone-700 flex items-center justify-center rounded-md mb-4 overflow-hidden">
-                <img 
-                  src={`/images/batteries/${type}/${battery.name.toLowerCase().replace(/\s+/g, '-')}.jpg`} 
-                  alt={battery.name} 
-                  className="object-cover w-full h-full" 
-                />
-              </div>
-              <p className="text-stone-300">Capacity: {battery.capacity}</p>
-              <p className={`font-bold mt-2 ${type === 'surfboard' ? 'text-blue-100' : `text-${color}-300`} text-lg`}>
-                ${battery.price}
-              </p>
-            </CardContent>
-            <CardFooter>
-              <Button className={`w-full bg-${color}-600 hover:bg-${color}-700`}>Add to Cart</Button>
-            </CardFooter>
-          </Card>
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content 
-            className="bg-stone-700 text-stone-100 p-4 rounded-md shadow-lg max-w-xs z-50"
-            sideOffset={5}
-            side="top"
-            align="center"
-          >
-            <h3 className="font-bold mb-2">{battery.name}</h3>
-            <p>Capacity: {battery.capacity}</p>
-            <p>Price: ${battery.price}</p>
-            <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
-            <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
-            <Tooltip.Arrow className="fill-stone-700" />
-          </Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip.Root>
-    </Tooltip.Provider>
-  )
+  const BatteryCard = ({ battery, color, type }) => {
+    const imagePath = `/images/batteries/${type}/${battery.name.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+
+    return (
+      <Tooltip.Provider delayDuration={300}>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
+              <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
+                <CardTitle className={`${type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
+                  <battery.icon className="mr-2 h-5 w-4" />
+                  {battery.name}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="aspect-square bg-stone-700 flex items-center justify-center rounded-md mb-4 overflow-hidden">
+                  <Image 
+                    src={imagePath}
+                    alt={battery.name} 
+                    width={200}
+                    height={200}
+                    className="object-cover w-full h-full" 
+                  />
+                </div>
+                <p className="text-stone-300">Capacity: {battery.capacity}</p>
+                <p className={`font-bold mt-2 ${type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
+                  ${battery.price}
+                </p>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className={`w-full ${type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
+                  onClick={() => addToCart({
+                    id: battery.id,
+                    name: battery.name,
+                    price: battery.price,
+                    type: type,
+                    capacity: battery.capacity,
+                    imagePath: imagePath
+                  })}
+                >
+                  Add to Cart
+                </Button>
+              </CardFooter>
+            </Card>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content 
+              className="bg-stone-700 text-stone-100 p-4 rounded-md shadow-lg max-w-xs z-50"
+              sideOffset={5}
+              side="top"
+              align="center"
+            >
+              <h3 className="font-bold mb-2">{battery.name}</h3>
+              <p>Capacity: {battery.capacity}</p>
+              <p>Price: ${battery.price}</p>
+              <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
+              <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
+              <Tooltip.Arrow className="fill-stone-700" />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-900 text-stone-100 font-sans">
@@ -92,8 +117,13 @@ export function EnhancedNorcalBatteryStore() {
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
               <Menu className="h-6 w-6" />
             </Button>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" onClick={() => setActiveTab("cart")} className="relative">
               <ShoppingCart className="h-6 w-6" />
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-emerald-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
             </Button>
           </div>
         </div>
@@ -180,6 +210,15 @@ export function EnhancedNorcalBatteryStore() {
               </p>
             </div>
           </div>
+        )}
+
+        {activeTab === "cart" && (
+          <Cart 
+            items={cartItems} 
+            removeFromCart={removeFromCart} 
+            updateQuantity={updateQuantity}
+            clearCart={clearCart}
+          />
         )}
       </main>
 
