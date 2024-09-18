@@ -62,8 +62,11 @@ export default function SuccessPage() {
         <h1 className="text-2xl font-bold mb-4 text-emerald-500 text-center">Payment Successful!</h1>
         <p className="mb-6 text-stone-300 text-center">Thank you for your purchase. Your order has been processed successfully and will be shipped soon.</p>
         <div className="space-y-4">
-          <Link href="/" className="block text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded transition duration-300">
-            Return to Home
+          <Link href="/orders" className="block text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+            View Your Orders
+          </Link>
+          <Link href="/" className="block text-center bg-stone-700 hover:bg-stone-600 text-stone-300 font-bold py-2 px-4 rounded transition duration-300">
+            Continue Shopping
           </Link>
         </div>
       </div>
