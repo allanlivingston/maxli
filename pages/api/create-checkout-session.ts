@@ -5,40 +5,47 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 });
 
+function isValidUrl(string: string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     try {
       const { items } = req.body;
 
-      // Log received items
       console.log('Received items:', JSON.stringify(items, null, 2));
 
-      // Ensure we have a valid origin
-      const origin = req.headers.origin || 'http://localhost:3001';
-      console.log('Origin:', origin);
+      const line_items = items.map((item: any) => {
+        const product_data: any = {
+          name: item.name,
+        };
 
-      const success_url = `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
-      const cancel_url = `${origin}/cart`;
+        if (item.imagePath && isValidUrl(item.imagePath)) {
+          product_data.images = [item.imagePath];
+        }
 
-      console.log('Success URL:', success_url);
-      console.log('Cancel URL:', cancel_url);
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: items.map((item: any) => ({
+        return {
           price_data: {
             currency: 'usd',
-            product_data: {
-              name: item.name,
-              images: item.imagePath ? [item.imagePath] : undefined,
-            },
+            product_data,
             unit_amount: Math.round(item.price * 100),
           },
           quantity: item.quantity,
-        })),
+        };
+      });
+
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items,
         mode: 'payment',
-        success_url,
-        cancel_url,
+        success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${req.headers.origin}/cart`,
       });
 
       res.status(200).json({ sessionId: session.id });

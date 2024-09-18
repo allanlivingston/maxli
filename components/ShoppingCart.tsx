@@ -28,14 +28,21 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
     setIsLoading(true);
     
     try {
-      console.log('Sending items to checkout:', items); // Log items being sent
+      const itemsWithFullImageUrls = items.map(item => ({
+        ...item,
+        imagePath: item.imagePath.startsWith('http') 
+          ? item.imagePath 
+          : `${window.location.origin}${item.imagePath}`
+      }));
+
+      console.log('Sending items to checkout:', itemsWithFullImageUrls); // Log items being sent
 
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: itemsWithFullImageUrls }),
       });
 
       if (!response.ok) {
