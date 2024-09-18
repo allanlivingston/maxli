@@ -1,75 +1,52 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function SuccessPage() {
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const router = useRouter();
 
   useEffect(() => {
-    const { session_id } = router.query;
+    // Log the full URL
+    console.log('Full URL:', window.location.href);
+
+    // Manually parse the URL to get the session_id
+    const urlParams = new URLSearchParams(window.location.search);
+    const session_id = urlParams.get('session_id');
+    
     console.log('Session ID:', session_id);
+
     if (session_id) {
+      console.log('Verifying session:', session_id);
       fetch(`/api/verify-session?session_id=${session_id}`)
         .then(response => response.json())
         .then(data => {
           console.log('Verification response:', data);
           if (data.verified) {
-            setStatus('success');
+            console.log('Order verified successfully');
+            router.push('/?orderSuccess=true');
           } else {
-            setStatus('error');
+            console.error('Order verification failed');
+            alert('Order verification failed. Check console for details.');
+            router.push('/?orderError=true');
           }
         })
         .catch(error => {
           console.error('Verification error:', error);
-          setStatus('error');
+          alert(`Verification error: ${error.message}`);
+          router.push('/?orderError=true');
         });
+    } else {
+      console.error('No session_id found in URL');
+      alert('No session_id found in URL. This should not happen.');
+      router.push('/?orderError=true');
     }
-  }, [router.query]);
-
-  if (status === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-stone-900">
-        <div className="text-stone-300 text-xl">Verifying your payment...</div>
-      </div>
-    );
-  }
-
-  if (status === 'error') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-stone-900">
-        <div className="p-8 bg-stone-800 shadow-lg rounded-lg max-w-md w-full">
-          <div className="flex items-center justify-center mb-6">
-            <AlertCircle className="w-16 h-16 text-red-500" />
-          </div>
-          <h1 className="text-2xl font-bold mb-4 text-red-500 text-center">Payment Verification Failed</h1>
-          <p className="mb-6 text-stone-300 text-center">There was an error verifying your payment. Please contact our support team for assistance.</p>
-          <Link href="/" className="block text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded transition duration-300">
-            Return to Home
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  }, [router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-stone-900">
-      <div className="p-8 bg-stone-800 shadow-lg rounded-lg max-w-md w-full">
-        <div className="flex items-center justify-center mb-6">
-          <CheckCircle className="w-16 h-16 text-emerald-500" />
-        </div>
-        <h1 className="text-2xl font-bold mb-4 text-emerald-500 text-center">Payment Successful!</h1>
-        <p className="mb-6 text-stone-300 text-center">Thank you for your purchase. Your order has been processed successfully and will be shipped soon.</p>
-        <div className="space-y-4">
-          <Link href="/orders" className="block text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded transition duration-300">
-            View Your Orders
-          </Link>
-          <Link href="/" className="block text-center bg-stone-700 hover:bg-stone-600 text-stone-300 font-bold py-2 px-4 rounded transition duration-300">
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
+    <div>
+      <h1>Verifying your order...</h1>
+      <p>Please wait while we confirm your payment. You will be redirected shortly.</p>
     </div>
   );
 }

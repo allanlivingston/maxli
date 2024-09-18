@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind, Trash2, Plus, Minus } from "lucide-react"
+import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind, Trash2, Plus, Minus, Package } from "lucide-react"
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { ShoppingCart as Cart } from "./ShoppingCart"
 import { useCart } from "@/hooks/useCart"
@@ -13,6 +13,8 @@ import Image from 'next/image'
 import { ebikeBatteries, surfboardBatteries, BatteryProduct } from '@/lib/productData'
 import { MiniCart } from '@/components/MiniCart';
 import { ErrorBoundary } from 'react-error-boundary';
+import Orders from '@/components/Orders'  // Import the Orders component
+import { useSearchParams } from 'next/navigation';
 
 export function EnhancedNorcalBatteryStore() {
   const [activeTab, setActiveTab] = useState("home")
@@ -22,6 +24,8 @@ export function EnhancedNorcalBatteryStore() {
   const [isCartHovered, setIsCartHovered] = useState(false);
   const cartRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const searchParams = useSearchParams();
 
   const handleCartEnter = () => {
     if (timeoutRef.current) {
@@ -128,6 +132,20 @@ export function EnhancedNorcalBatteryStore() {
     )
   }
 
+  useEffect(() => {
+    console.log('Search params:', Object.fromEntries(searchParams.entries()));
+    if (searchParams.get('orderSuccess') === 'true') {
+      console.log('Order success detected');
+      setSuccessMessage('Your order has been successfully placed!');
+      setActiveTab("orders");
+      alert('Order placed successfully!');
+    } else if (searchParams.get('orderError') === 'true') {
+      console.log('Order error detected');
+      setSuccessMessage('There was an error processing your order. Please try again.');
+      alert('Error processing order. Check console for details.');
+    }
+  }, [searchParams]);
+
   return (
     <div className="flex flex-col min-h-screen bg-stone-900 text-stone-100 font-sans">
       <header className="sticky top-0 z-10 bg-stone-800 border-b border-stone-700">
@@ -145,6 +163,7 @@ export function EnhancedNorcalBatteryStore() {
             <Button variant="ghost" onClick={() => setActiveTab("gallery")} className={activeTab === "gallery" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>Gallery</Button>
             <Button variant="ghost" onClick={() => setActiveTab("about")} className={activeTab === "about" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>About</Button>
             <Button variant="ghost" onClick={() => setActiveTab("contact")} className={activeTab === "contact" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>Contact</Button>
+            <Button variant="ghost" onClick={() => setActiveTab("orders")} className={activeTab === "orders" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>Orders</Button>
           </nav>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -189,11 +208,18 @@ export function EnhancedNorcalBatteryStore() {
             <Button variant="ghost" onClick={() => { setActiveTab("gallery"); setMenuOpen(false) }} className="w-full text-left px-4 py-2">Gallery</Button>
             <Button variant="ghost" onClick={() => { setActiveTab("about"); setMenuOpen(false) }} className="w-full text-left px-4 py-2">About</Button>
             <Button variant="ghost" onClick={() => { setActiveTab("contact"); setMenuOpen(false) }} className="w-full text-left px-4 py-2">Contact</Button>
+            <Button variant="ghost" onClick={() => { setActiveTab("orders"); setMenuOpen(false) }} className="w-full text-left px-4 py-2">Orders</Button>
           </nav>
         )}
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8">
+        {successMessage && (
+          <div className="bg-green-500 text-white p-4 rounded-md mb-4">
+            {successMessage}
+          </div>
+        )}
+
         {activeTab === "home" && (
           <>
             <h1 className="text-3xl md:text-4xl font-bold mb-6 text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>OnPoint Batteries</h1>
@@ -275,6 +301,13 @@ export function EnhancedNorcalBatteryStore() {
             updateQuantity={updateQuantity}
             clearCart={clearCart}
           />
+        )}
+
+        {activeTab === "orders" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>Your Orders</h2>
+            <Orders />
+          </div>
         )}
       </main>
 
