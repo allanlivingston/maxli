@@ -52,6 +52,19 @@ export function EnhancedNorcalBatteryStore() {
   console.log('Cart Items Count:', cartItemsCount);
   console.log('Is Cart Hovered:', isCartHovered);
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setActiveTab("home");
+    setMenuOpen(false);
+    setActiveBatteryType("ebike");
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleGoToCart = () => {
+    setActiveTab("cart");
+    setIsCartHovered(false); // Close the MiniCart
+  };
+
   const BatteryCard = ({ battery, color }: { battery: BatteryProduct, color: string }) => {
     const imagePath = `/images/batteries/${battery.type}/${battery.imageName}`;
 
@@ -119,10 +132,14 @@ export function EnhancedNorcalBatteryStore() {
     <div className="flex flex-col min-h-screen bg-stone-900 text-stone-100 font-sans">
       <header className="sticky top-0 z-10 bg-stone-800 border-b border-stone-700">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <a 
+            href="/" 
+            onClick={handleLogoClick}
+            className="flex items-center space-x-2"
+          >
             <Battery className="h-6 w-6 text-emerald-400" />
             <span className="text-xl font-bold" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>opbattery.com</span>
-          </div>
+          </a>
           <nav className="hidden md:flex space-x-4">
             <Button variant="ghost" onClick={() => setActiveTab("home")} className={activeTab === "home" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>Home</Button>
             <Button variant="ghost" onClick={() => setActiveTab("gallery")} className={activeTab === "gallery" ? "text-emerald-400" : "text-stone-400 hover:text-emerald-400"}>Gallery</Button>
@@ -159,6 +176,7 @@ export function EnhancedNorcalBatteryStore() {
                     items={cartItems} 
                     removeFromCart={removeFromCart}
                     updateQuantity={updateQuantity}
+                    onGoToCart={handleGoToCart}
                   />
                 </div>
               )}
