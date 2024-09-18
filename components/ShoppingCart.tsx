@@ -7,7 +7,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { MiniCart } from '@/components/MiniCart';
 
 // Make sure to replace with your actual Stripe publishable key
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePublishableKey='pk_test_51Q0C19GwQyMz70J53FOlg32lxuQEbugtEltOB9E9YxiX6F6ly8JtGRp2pH79yTMxXM3BhHvAjKUfqCJWZjI3Kjw200aLwnfiAQ'
+const stripePromise = loadStripe(stripePublishableKey /*process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!*/);
 
 interface ShoppingCartProps {
   items: CartItem[];
@@ -27,6 +28,8 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
     setIsLoading(true);
     
     try {
+      console.log('Sending items to checkout:', items); // Log items being sent
+
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -35,17 +38,32 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         body: JSON.stringify({ items }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        throw new Error(`Failed to create checkout session: ${errorData.error || response.statusText}`);
+      }
+
       const { sessionId } = await response.json();
+      
+      if (!sessionId) {
+        throw new Error('No session ID returned from the server');
+      }
+
       const stripe = await stripePromise;
       
       if (stripe) {
         const { error } = await stripe.redirectToCheckout({ sessionId });
         if (error) {
           console.error('Stripe checkout error:', error);
+          throw error;
         }
+      } else {
+        throw new Error('Failed to load Stripe');
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
+      // Here you might want to show an error message to the user
     } finally {
       setIsLoading(false);
     }
@@ -132,11 +150,6 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
               {isLoading ? 'Processing...' : 'Proceed to Checkout'}
               <Lock className="ml-2 h-4 w-4" />
             </Button>
-            <div className="flex justify-center space-x-4">
-              <Image src="/visa.png" alt="Visa" width={40} height={25} />
-              <Image src="/mastercard.png" alt="Mastercard" width={40} height={25} />
-              <Image src="/amex.png" alt="American Express" width={40} height={25} />
-            </div>
             <p className="text-xs text-center text-stone-400">
               Secure checkout powered by Stripe. We never store your payment information.
             </p>

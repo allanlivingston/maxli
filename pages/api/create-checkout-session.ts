@@ -10,6 +10,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const { items } = req.body;
 
+      // Log received items
+      console.log('Received items:', JSON.stringify(items, null, 2));
+
+      // Ensure we have a valid origin
+      const origin = req.headers.origin || 'http://localhost:3001';
+      console.log('Origin:', origin);
+
+      const success_url = `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+      const cancel_url = `${origin}/cart`;
+
+      console.log('Success URL:', success_url);
+      console.log('Cancel URL:', cancel_url);
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: items.map((item: any) => ({
@@ -17,20 +30,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             currency: 'usd',
             product_data: {
               name: item.name,
-              images: [item.imagePath],
+              images: item.imagePath ? [item.imagePath] : undefined,
             },
-            unit_amount: Math.round(item.price * 100), // Stripe expects amounts in cents
+            unit_amount: Math.round(item.price * 100),
           },
           quantity: item.quantity,
         })),
         mode: 'payment',
-        success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.origin}/cart`,
+        success_url,
+        cancel_url,
       });
 
       res.status(200).json({ sessionId: session.id });
     } catch (err: any) {
-      res.status(500).json({ statusCode: 500, message: err.message });
+      console.error('Stripe API error:', err);
+      res.status(500).json({ error: err.message });
     }
   } else {
     res.setHeader('Allow', 'POST');
