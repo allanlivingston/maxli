@@ -138,11 +138,11 @@ export function EnhancedNorcalBatteryStore() {
       console.log('Order success detected');
       setSuccessMessage('Your order has been successfully placed!');
       setActiveTab("orders");
-      alert('Order placed successfully!');
+      //alert('Order placed successfully!');
     } else if (searchParams.get('orderError') === 'true') {
       console.log('Order error detected');
       setSuccessMessage('There was an error processing your order. Please try again.');
-      alert('Error processing order. Check console for details.');
+      alert('Error processing order.');
     }
   }, [searchParams]);
 

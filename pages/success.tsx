@@ -27,7 +27,7 @@ export default function SuccessPage() {
             router.push('/?orderSuccess=true');
           } else {
             console.error('Order verification failed');
-            alert('Order verification failed. Check console for details.');
+            //alert('Order verification failed. Check console for details.');
             router.push('/?orderError=true');
           }
         })
@@ -38,7 +38,7 @@ export default function SuccessPage() {
         });
     } else {
       console.error('No session_id found in URL');
-      alert('No session_id found in URL. This should not happen.');
+      alert('No session_id found in URL.');
       router.push('/?orderError=true');
     }
   }, [router]);
