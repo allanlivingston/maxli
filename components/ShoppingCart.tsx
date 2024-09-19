@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
@@ -6,10 +8,7 @@ import { Minus, Plus, X, Lock, Truck, Store, ShoppingCart as CartIcon } from 'lu
 import { loadStripe } from '@stripe/stripe-js';
 import * as RadioGroup from '@radix-ui/react-radio-group';
 
-// Move this inside the component to ensure it's only called client-side
-const getStripe = () => {
-  return loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
-};
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 interface ShoppingCartProps {
   items: CartItem[];
@@ -20,21 +19,17 @@ interface ShoppingCartProps {
 
 export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart }: ShoppingCartProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [deliveryMethod, setDeliveryMethod] = useState('delivery');
+  const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   
-  // Update the price calculation
   const subtotal = items.reduce((sum, item) => sum + (item.price * 100) * item.quantity, 0);
   const estimatedTax = subtotal * 0.08;
-  const shippingCost = Math.min(15000, Math.round(subtotal * 0.1)); // Always calculate, even if pickup is selected
+  const shippingCost = Math.min(15000, Math.round(subtotal * 0.1));
   const estimatedShipping = deliveryMethod === 'pickup' ? 0 : shippingCost;
   const total = subtotal + estimatedTax + estimatedShipping;
 
   const handleCheckout = async () => {
     setIsLoading(true);
     try {
-      const stripe = await getStripe();
-      if (!stripe) throw new Error('Failed to initialize Stripe.');
-
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -56,15 +51,14 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         throw new Error(errorData.message || 'An error occurred during checkout');
       }
 
-      const session = await response.json();
-      console.log('Received session ID:', session.id);
+      const { id: sessionId } = await response.json();
 
-      const result = await stripe.redirectToCheckout({
-        sessionId: session.id,
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message);
+      const stripe = await stripePromise;
+      if (stripe) {
+        const { error } = await stripe.redirectToCheckout({ sessionId });
+        if (error) {
+          console.error('Stripe checkout error:', error);
+        }
       }
     } catch (error) {
       console.error('Error in checkout:', error);
@@ -92,7 +86,6 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
             <Image src={item.imagePath} alt={item.name} width={50} height={50} className="rounded" />
             <div>
               <p className="text-stone-200">{item.name}</p>
-              {/* Update the price display */}
               <p className="text-stone-400">${item.price.toFixed(2)}</p>
             </div>
           </div>
@@ -161,7 +154,6 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
           <div className="space-y-2">
             <div className="flex justify-between text-stone-300">
               <span>Subtotal</span>
-              {/* Update subtotal display */}
               <span>${(subtotal / 100).toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-stone-300">

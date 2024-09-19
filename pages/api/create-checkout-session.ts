@@ -9,11 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     try {
       const { items, deliveryMethod } = req.body;
-      if (!items || items.length === 0) {
-        return res.status(400).json({ message: 'No items in the cart' });
-      }
 
-      const session = await stripe.checkout.sessions.create({
+      let sessionConfig: Stripe.Checkout.SessionCreateParams = {
         payment_method_types: ['card'],
         line_items: items.map((item: any) => ({
           price_data: {
@@ -21,14 +18,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             product_data: {
               name: item.name,
             },
-            unit_amount: item.price,
+            unit_amount: Math.round(item.price), 
           },
           quantity: item.quantity,
         })),
         mode: 'payment',
         success_url: `${req.headers.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${req.headers.origin}/cart`,
-      });
+      };
+
+      if (deliveryMethod === 'delivery') {
+        sessionConfig.shipping_address_collection = {
+          allowed_countries: ['US'],
+        };
+        sessionConfig.shipping_options = [
+          {
+            shipping_rate_data: {
+              type: 'fixed_amount',
+              fixed_amount: {
+                amount: 500, // $5.00 in cents
+                currency: 'usd',
+              },
+              display_name: 'Ground shipping (Contiguous US only)',
+              delivery_estimate: {
+                minimum: {
+                  unit: 'business_day',
+                  value: 5,
+                },
+                maximum: {
+                  unit: 'business_day',
+                  value: 7,
+                },
+              },
+            },
+          },
+        ];
+      }
+
+      const session = await stripe.checkout.sessions.create(sessionConfig);
 
       res.status(200).json({ id: session.id });
     } catch (err: any) {
