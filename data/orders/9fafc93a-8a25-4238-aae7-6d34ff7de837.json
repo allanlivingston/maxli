@@ -1,0 +1,21 @@
+{
+  "_id": "9fafc93a-8a25-4238-aae7-6d34ff7de837",
+  "stripeSessionId": "cs_test_b158OCZvKITj5mKcskjeMT68nM5tM6x0XBg8rywZ6ij8vPAqo65Q0tuWAv",
+  "userId": "user_id_here",
+  "items": [
+    {
+      "id": 1,
+      "name": "Redwood Rideout",
+      "capacity": "500Wh",
+      "price": 299.99,
+      "icon": {},
+      "type": "ebike",
+      "imageName": "redwood-rideout.jpg",
+      "imagePath": "/images/batteries/ebike/redwood-rideout.jpg",
+      "quantity": 1
+    }
+  ],
+  "total": 399.99,
+  "status": "pending",
+  "createdAt": "2024-09-22T18:34:11.621Z"
+}

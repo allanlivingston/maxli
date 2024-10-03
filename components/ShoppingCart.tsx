@@ -21,11 +21,9 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
   const [isLoading, setIsLoading] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
   
-  const subtotal = items.reduce((sum, item) => sum + (item.price * 100) * item.quantity, 0);
-  const estimatedTax = subtotal * 0.08;
-  const shippingCost = Math.min(15000, Math.round(subtotal * 0.1));
-  const estimatedShipping = deliveryMethod === 'pickup' ? 0 : shippingCost;
-  const total = subtotal + estimatedTax + estimatedShipping;
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shippingCost = deliveryMethod === 'delivery' ? 100 : 0;
+  const total = subtotal + shippingCost;
 
   const handleCheckout = async () => {
     setIsLoading(true);
@@ -36,20 +34,19 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          items: items.map(item => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity,
-            price: Math.round(item.price * 100),
-          })),
+          items,
+          shippingAddress: {
+            // You should collect this information from the user
+            line1: '123 Main St',
+            city: 'Anytown',
+            state: 'CA',
+            postal_code: '12345',
+            country: 'US',
+          },
           deliveryMethod,
+          shippingCost,
         }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'An error occurred during checkout');
-      }
 
       const { id: sessionId } = await response.json();
 
@@ -61,8 +58,7 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         }
       }
     } catch (error) {
-      console.error('Error in checkout:', error);
-      // Show an error message to the user
+      console.error('Error creating checkout session:', error);
     } finally {
       setIsLoading(false);
     }
@@ -122,9 +118,7 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
                 <Truck className="w-5 h-5 mr-2 text-emerald-500" />
                 <div>
                   <p className="font-medium">Home Delivery</p>
-                  <p className="text-sm text-stone-400">
-                    ${(shippingCost / 100).toFixed(2)} (final amount calculated at checkout)
-                  </p>
+                  <p className="text-sm text-stone-400">$100.00</p>
                 </div>
               </label>
             </div>
@@ -154,19 +148,15 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
           <div className="space-y-2">
             <div className="flex justify-between text-stone-300">
               <span>Subtotal</span>
-              <span>${(subtotal / 100).toFixed(2)}</span>
+              <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-stone-300">
-              <span>Estimated Tax</span>
-              <span>${(estimatedTax / 100).toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-stone-300">
-              <span>Estimated Shipping</span>
-              <span>{estimatedShipping === 0 ? 'Free' : `$${(estimatedShipping / 100).toFixed(2)}`}</span>
+              <span>Shipping</span>
+              <span>{shippingCost === 0 ? 'Free' : `$${shippingCost.toFixed(2)}`}</span>
             </div>
             <div className="flex justify-between font-semibold text-stone-200">
               <span>Total</span>
-              <span>${(total / 100).toFixed(2)}</span>
+              <span>${total.toFixed(2)}</span>
             </div>
           </div>
         </div>
