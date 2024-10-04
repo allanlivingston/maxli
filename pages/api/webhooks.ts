@@ -21,15 +21,9 @@ const orderService = new OrderService();
 const jsonRepository = new JsonOrderRepository();
 const logDir = jsonRepository.getDataDir();
 
-async function logToFile(message: string) {
-  const logPath = path.join(logDir, 'webhook-logs.txt');
-  await fs.appendFile(logPath, `${new Date().toISOString()}: ${message}\n`);
-  console.log('Logged to file:', logPath);
-}
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    await logToFile('Webhook received');
+    console.log('Webhook received');
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature']!;
 
@@ -37,32 +31,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
-      await logToFile(`Event constructed: ${event.type}`);
+      console.log(`Event constructed: ${event.type}`);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      await logToFile(`Webhook Error: ${errorMessage}`);
+      console.error(`Webhook Error: ${errorMessage}`);
       res.status(400).send(`Webhook Error: ${errorMessage}`);
       return;
     }
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      await logToFile(`Checkout completed: ${session.id}`);
+      console.log(`Checkout completed: ${session.id}`);
 
       try {
         const order = await orderService.getOrderByStripeSessionId(session.id);
         if (order) {
-          await logToFile(`Order found: ${order.id}`);
+          console.log(`Order found: ${order.id}`);
           // Update order status
           try {
             await orderService.updateOrderStatus(order.id, 'paid');
-            await logToFile(`Order status updated to paid for order: ${order.id}`);
+            console.log(`Order status updated to paid for order: ${order.id}`);
           } catch (updateError) {
-            await logToFile(`Error updating order status: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
+            console.error(`Error updating order status: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
           }
 
           // Update shipping address if available
-          await logToFile(`Session customer details: ${JSON.stringify(session.customer_details)}`);
+          console.log(`Session customer details: ${JSON.stringify(session.customer_details)}`);
           if (session.customer_details?.address) {
             const shippingAddress = {
               line1: session.customer_details.address.line1 || '',
@@ -73,17 +67,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               country: session.customer_details.address.country || '',
             };
             await orderService.updateShippingAddress(order.id, shippingAddress);
-            await logToFile(`Shipping address updated for order: ${order.id}`);
+            console.log(`Shipping address updated for order: ${order.id}`);
           } else {
-            await logToFile(`No shipping information for order: ${order.id}`);
+            console.log(`No shipping information for order: ${order.id}`);
           }
 
-          await logToFile(`Order ${order.id} updated successfully`);
+          console.log(`Order ${order.id} updated successfully`);
         } else {
-          await logToFile(`Order not found for session: ${session.id}`);
+          console.log(`Order not found for session: ${session.id}`);
         }
       } catch (error) {
-        await logToFile(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
