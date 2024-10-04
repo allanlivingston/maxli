@@ -4,9 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { OrderService } from '../../services/OrderService';
 // Remove the unused import:
 // import { ShippingAddress } from '../../types/Order';
-import { JsonOrderRepository } from '../../db/json/repositories/JsonOrderRepository';
-import fs from 'fs/promises';
-import path from 'path';
+
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -18,8 +16,6 @@ export const config = {
 };
 
 const orderService = new OrderService();
-const jsonRepository = new JsonOrderRepository();
-const logDir = jsonRepository.getDataDir();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
