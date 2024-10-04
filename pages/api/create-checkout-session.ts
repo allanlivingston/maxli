@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
 import { Order, OrderItem, OrderStatus } from '../../types/Order';
-import { getSession } from 'next-auth/react'; // If using NextAuth.js
+//import { getSession } from 'next-auth/react'; // If using NextAuth.js
 import { getGuestId } from '../../utils/guestId';
 
 const stripe = process.env.STRIPE_SECRET_KEY
@@ -13,7 +13,7 @@ const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Get the user session
-  const session = await getSession({ req });
+  const session = null; //await getSession({ req });
   
   // Use optional chaining and nullish coalescing with a more specific type assertion
   const userId = (session?.user as { id?: string })?.id ?? req.body.guestId ?? getGuestId();
