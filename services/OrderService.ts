@@ -27,17 +27,18 @@ export class OrderService implements IOrderService {
     return { id: _id, ...rest };
   }
 
-  private convertToDBOrder(order: Omit<Order, 'id' | 'createdAt'>): Omit<DBOrder, '_id' | 'createdAt'> {
+  private convertToDBOrder(order: Omit<Order, 'id' | 'created_at'>): Omit<DBOrder, '_id' | 'created_at'> {
     return order;
   }
 
-  async createOrder(orderData: Omit<Order, 'id' | 'createdAt'>): Promise<Order> {
+  async createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<Order> {
     try {
-      const dbOrderData = this.convertToDBOrder(orderData);
-      const dbOrder = await this.orderRepository.create(dbOrderData);
+      console.log('OrderService: Creating order with data:', orderData);
+      const dbOrder = await this.orderRepository.create(orderData);
+      console.log('OrderService: Order created:', dbOrder);
       return this.convertToOrder(dbOrder);
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('OrderService: Error creating order:', error);
       throw new Error('Failed to create order');
     }
   }

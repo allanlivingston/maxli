@@ -25,11 +25,11 @@ export class JsonOrderRepository implements IOrderRepository {
     return path.join(this.dataDir, `${id}.json`);
   }
 
-  async create(order: Omit<DBOrder, '_id' | 'createdAt'>): Promise<DBOrder> {
+  async create(order: Omit<DBOrder, '_id' | 'created_at'>): Promise<DBOrder> {
     const newOrder: DBOrder = {
       _id: uuidv4(),
       ...order,
-      createdAt: new Date(),
+      created_at: new Date(),
     };
     await fs.writeFile(this.getFilePath(newOrder._id), JSON.stringify(newOrder, null, 2));
     return newOrder;
@@ -102,6 +102,6 @@ export class JsonOrderRepository implements IOrderRepository {
       const data = await fs.readFile(path.join(this.dataDir, file), 'utf-8');
       orders.push(JSON.parse(data) as DBOrder);
     }
-    return orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return orders.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
   }
 }

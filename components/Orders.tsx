@@ -54,8 +54,8 @@ export default function Orders() {
           <div className="flex justify-between items-center mb-4">
             <span className="text-emerald-500 font-semibold">Order ID: {order.id}</span>
             <span className="text-stone-400">
-              {order.createdAt 
-                ? new Date(order.createdAt).toLocaleString()
+              {order.created_at 
+                ? new Date(order.created_at).toLocaleString()
                 : 'Date not available'}
             </span>
           </div>

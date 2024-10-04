@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
-import { Order, OrderItem } from '../../types/Order';
+import { Order, OrderItem, OrderStatus } from '../../types/Order';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -17,6 +17,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
+      console.log('Received checkout request:', req.body);
+
       const { items, deliveryMethod, shippingCost } = req.body;
 
       const lineItems = items.map((item: OrderItem) => ({
@@ -72,13 +74,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const orderTotal = (session.amount_total || 0) / 100; // Convert back to dollars
 
-      const order: Omit<Order, 'id' | 'createdAt'> = {
+      const order: Omit<Order, 'id' | 'created_at'> = {
         stripeSessionId: session.id,
         userId: 'user_id_here', // You'll need to implement user authentication
         items: items,
         total: orderTotal,
-        status: 'pending',
-        // We'll update the shipping address after payment completion
+        status: 'pending' as OrderStatus,
         shippingAddress: undefined,
       };
 

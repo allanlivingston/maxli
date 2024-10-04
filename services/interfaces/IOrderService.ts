@@ -1,7 +1,7 @@
 import { Order, OrderStatus, ShippingAddress } from '../../types/Order';
 
 export interface IOrderService {
-  createOrder(orderData: Omit<Order, 'id' | 'createdAt'>): Promise<Order>;
+  createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<Order>;
   getOrderById(id: string): Promise<Order | null>;
   getOrderByStripeSessionId(sessionId: string): Promise<Order | null>;
   updateOrderStatus(id: string, status: OrderStatus): Promise<Order | null>;

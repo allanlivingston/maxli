@@ -1,0 +1,108 @@
+import { IOrderRepository } from '../../interfaces/IOrderRepository';
+import { DBOrder } from '../../../types/Order';
+import { supabase } from '../../../lib/supabaseClient';
+
+export class SupabaseOrderRepository implements IOrderRepository {
+  async create(order: Omit<DBOrder, 'id' | 'created_at'>): Promise<DBOrder> {
+    try {
+      console.log('Attempting to create order in Supabase:', order);
+
+      const { data, error } = await supabase
+        .from('orders')
+        .insert([order])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Order created successfully in Supabase:', data);
+      return data as DBOrder;
+    } catch (error) {
+      console.error('Error creating order in SupabaseOrderRepository:', error);
+      throw new Error('Failed to create order in repository');
+    }
+  }
+
+  async findById(id: string): Promise<DBOrder | null> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error finding order by ID:', error);
+      throw error;
+    }
+
+    return data as DBOrder | null;
+  }
+
+  async findByStripeSessionId(sessionId: string): Promise<DBOrder | null> {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('stripe_session_id', sessionId)
+      .single();
+
+    if (error) {
+      console.error('Error finding order by Stripe session ID:', error);
+      throw error;
+    }
+
+    return data as DBOrder | null;
+  }
+
+  async update(id: string, updateData: Partial<DBOrder>): Promise<DBOrder | null> {
+    const { data, error } = await supabase
+      .from('orders')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating order:', error);
+      throw error;
+    }
+
+    return data as DBOrder | null;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting order:', error);
+      return false;
+    }
+
+    return true;
+  }
+
+  async findAll(limit?: number): Promise<DBOrder[]> {
+    let query = supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (limit) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching all orders:', error);
+      throw error;
+    }
+
+    return data as DBOrder[];
+  }
+}

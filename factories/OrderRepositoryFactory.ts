@@ -2,13 +2,13 @@ import { IOrderRepository } from '../db/interfaces/IOrderRepository';
 //import { MongoOrderRepository } from '../db/mongodb/repositories/MongoOrderRepository';
 //import { FirebaseOrderRepository } from '../db/firebase/repositories/FirebaseOrderRepository';
 import { MySQLOrderRepository } from '../db/mysql/repositories/MySQLOrderRepository';
-//import { SupabaseOrderRepository } from '../db/supabase/repositories/SupabaseOrderRepository';
+import { SupabaseOrderRepository } from '../db/supabase/repositories/SupabaseOrderRepository';
 //import { FlaskOrderRepository } from '../db/flask/repositories/FlaskOrderRepository';
 import { JsonOrderRepository } from '../db/json/repositories/JsonOrderRepository';
 
 export class OrderRepositoryFactory {
   static getRepository(): IOrderRepository {
-    const dbType = process.env.DB_TYPE || 'json';
+    const dbType = process.env.DB_TYPE || 'supabase';
 
     switch (dbType) {
       case 'firebase':
@@ -17,8 +17,7 @@ export class OrderRepositoryFactory {
       case 'mysql':
         return new MySQLOrderRepository();
       case 'supabase':
-        //return new SupabaseOrderRepository();
-        throw new Error('Supabase repository not implemented');
+        return new SupabaseOrderRepository();
       case 'flask':
         //return new FlaskOrderRepository();
         throw new Error('Flask repository not implemented');

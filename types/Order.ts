@@ -6,7 +6,7 @@ export interface DBOrder {
   total: number;
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
-  createdAt: Date;
+  created_at: Date;
 }
 
 export interface Order {
@@ -17,7 +17,7 @@ export interface Order {
   total: number;
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
-  createdAt: Date;
+  created_at: Date; // Change this from 'created_at' to 'created_at'
 }
 
 export interface OrderItem {

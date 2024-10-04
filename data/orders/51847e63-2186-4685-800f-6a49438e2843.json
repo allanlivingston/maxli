@@ -1,6 +1,6 @@
 {
-  "_id": "f5d6ed0e-5ead-40d2-ba19-7e843690d016",
-  "stripeSessionId": "cs_test_b1fMpTBH5DJ6WqErdjzt6d1TMqZS9wqlkNjSRYkEU9QIKM2amyMAIkkd6b",
+  "_id": "51847e63-2186-4685-800f-6a49438e2843",
+  "stripeSessionId": "cs_test_a167Xe2LJTnxSTvqu8c58QybVsnqbbYiMJy0Cxni5YstArRZpP21zNuOUN",
   "userId": "user_id_here",
   "items": [
     {
@@ -15,7 +15,7 @@
       "quantity": 1
     }
   ],
-  "total": 499.99,
+  "total": 399.99,
   "status": "pending",
-  "created_at": "2024-09-22T18:41:45.890Z"
+  "created_at": "2024-10-04T03:39:52.796Z"
 }

@@ -15,7 +15,7 @@ export class MySQLOrderRepository implements IOrderRepository {
     });
   }
 
-  async create(order: Omit<DBOrder, '_id' | 'createdAt'>): Promise<DBOrder> {
+  async create(order: Omit<DBOrder, '_id' | 'created_at'>): Promise<DBOrder> {
     const connection = await this.pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -46,7 +46,7 @@ export class MySQLOrderRepository implements IOrderRepository {
       const createdOrder: DBOrder = {
         _id: orderId.toString(),
         ...order,
-        createdAt: new Date(),
+        created_at: new Date(),
       };
 
       return createdOrder;
@@ -92,7 +92,7 @@ export class MySQLOrderRepository implements IOrderRepository {
       total: order.total,
       status: order.status as OrderStatus,
       shippingAddress,
-      createdAt: order.created_at,
+      created_at: order.created_at,
     };
   }
 
