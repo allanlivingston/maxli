@@ -13,10 +13,10 @@ const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Get the user session
-  const session = null; //await getSession({ req });
+  // const session = await getSession({ req });
   
   // Use optional chaining and nullish coalescing with a more specific type assertion
-  const userId = (session?.user as { id?: string })?.id ?? req.body.guestId ?? getGuestId();
+  const userId = req.body.guestId ?? getGuestId();
 
   if (!stripe) {
     console.error('Stripe has not been initialized. Check STRIPE_SECRET_KEY.');
