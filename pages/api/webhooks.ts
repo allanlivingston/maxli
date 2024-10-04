@@ -35,6 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return;
     }
 
+    console.log(`Webhook Event type: ${event.type}, ${event.data.object}`);
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(`Checkout completed: ${session.id}`);
