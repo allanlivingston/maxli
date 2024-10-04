@@ -9,7 +9,15 @@ import { loadStripe } from '@stripe/stripe-js';
 // Remove the unused import:
 // import * as RadioGroup from '@radix-ui/react-radio-group';
 
+//import { useCart } from '../contexts/CartContext'; // Make sure you have this import
+
+// Initialize Stripe
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+// Function to get Stripe instance
+const getStripe = () => {
+  return stripePromise;
+};
 
 interface ShoppingCartProps {
   items: CartItem[];
@@ -27,11 +35,11 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
   const total = subtotal + shippingCost;
 
   const handleCheckout = async () => {
-    setIsLoading(true);
+    setIsLoading(true); // Set loading to true when starting checkout
     try {
-      console.log('Initiating checkout with items:', items);
-      console.log('Delivery method:', deliveryMethod);
-      console.log('Shipping cost:', shippingCost);
+      console.log("Initiating checkout with items:", items);
+      console.log("Delivery method:", deliveryMethod);
+      console.log("Shipping cost:", shippingCost);
 
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -40,43 +48,46 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         },
         body: JSON.stringify({
           items,
-          shippingAddress: {
-            // You should collect this information from the user
-            line1: '123 Main St',
-            city: 'Anytown',
-            state: 'CA',
-            postal_code: '12345',
-            country: 'US',
-          },
           deliveryMethod,
           shippingCost,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Error response from server:', errorData);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const { id: sessionId } = await response.json();
-      console.log('Received session ID:', sessionId);
+      const checkoutSession = await response.json();
+      console.log("Checkout session response:", checkoutSession);
 
-      const stripe = await stripePromise;
+      if (!checkoutSession || !checkoutSession.id) {
+        throw new Error('Invalid checkout session response');
+      }
+
+      const { id: sessionId, orderId } = checkoutSession;
+      console.log("Extracted sessionId:", sessionId, "orderId:", orderId);
+
+      if (!sessionId) {
+        throw new Error('No session ID returned from server');
+      }
+
+      // Redirect to Stripe Checkout
+      const stripe = await getStripe();
       if (!stripe) {
         throw new Error('Failed to initialize Stripe');
       }
-
       const { error } = await stripe.redirectToCheckout({ sessionId });
+
       if (error) {
-        console.error('Stripe checkout error:', error);
-        throw error;
+        console.error('Stripe redirect error:', error);
+        throw new Error(error.message);
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
-      // TODO: Show error message to user
+      console.error('Error in checkout:', error);
+      // Here you might want to set an error state or show an error message to the user
+      // setCheckoutError(error.message);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Set loading back to false when checkout process is complete
     }
   };
 

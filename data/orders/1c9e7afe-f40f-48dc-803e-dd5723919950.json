@@ -1,0 +1,21 @@
+{
+  "_id": "1c9e7afe-f40f-48dc-803e-dd5723919950",
+  "stripeSessionId": "cs_test_a1QtbrnIScG3FcjTqIR3QX10u08B6FMkNwGeu7tmMObBGMNcdER7gOLJD7",
+  "userId": "user_id_here",
+  "items": [
+    {
+      "id": 2,
+      "name": "Sequoia Scrambler",
+      "capacity": "750Wh",
+      "price": 399.99,
+      "icon": {},
+      "type": "ebike",
+      "imageName": "sequoia-scrambler.jpg",
+      "imagePath": "/images/batteries/ebike/sequoia-scrambler.jpg",
+      "quantity": 8
+    }
+  ],
+  "total": "3199.92",
+  "status": "pending",
+  "created_at": "2024-10-04T04:45:04.862Z"
+}

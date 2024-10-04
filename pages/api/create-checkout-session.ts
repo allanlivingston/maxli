@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
 import { Order, OrderItem, OrderStatus } from '../../types/Order';
+import { getSession } from 'next-auth/react'; // If using NextAuth.js
+import { getGuestId } from '../../utils/guestId';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -10,6 +12,12 @@ const stripe = process.env.STRIPE_SECRET_KEY
 const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Get the user session
+  const session = await getSession({ req });
+  
+  // Use optional chaining and nullish coalescing with a more specific type assertion
+  const userId = (session?.user as { id?: string })?.id ?? req.body.guestId ?? getGuestId();
+
   if (!stripe) {
     console.error('Stripe has not been initialized. Check STRIPE_SECRET_KEY.');
     return res.status(500).json({ error: 'Stripe is not configured correctly.' });
@@ -17,11 +25,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
+      // Log the incoming request
       console.log('Received checkout request:', req.body);
 
       const { items, deliveryMethod, shippingCost } = req.body;
 
-      const lineItems = items.map((item: OrderItem) => ({
+      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item: OrderItem) => ({
         price_data: {
           currency: 'usd',
           product_data: {
@@ -72,36 +81,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const session = await stripe.checkout.sessions.create(sessionOptions);
 
-      console.log('Stripe session created:', session);
+      console.log('Stripe session created:', JSON.stringify(session, null, 2));
 
-      const orderTotal = (session.amount_total || 0) / 100; // Convert back to dollars
+      // Ensure we're correctly accessing the amount_total
+      const orderTotal = session.amount_total 
+        ? (session.amount_total / 100).toFixed(2) 
+        : '0.00';
 
-      const order: Omit<Order, 'id' | 'created_at'> = {
+      console.log('Calculated orderTotal:', orderTotal);
+
+      const order: Omit<Order, 'id'> = {
+        userId,
         stripeSessionId: session.id,
-        userId: 'user_id_here', // You'll need to implement user authentication
-        items: items,
-        total: orderTotal,
+        items: items, // Use the original items from the request body instead of lineItems
+        total: parseFloat(orderTotal),
         status: 'pending' as OrderStatus,
         shippingAddress: undefined,
+        // created_at is now optional, so we don't need to include it here
       };
 
-      console.log('Attempting to create order:', order);
+      console.log('Attempting to create order:', JSON.stringify(order, null, 2));
 
-      const createdOrder = await orderService.createOrder(order);
-
-      console.log('Order created successfully:', createdOrder);
-
-      res.status(200).json({ id: session.id, orderId: createdOrder.id });
-    } catch (error: unknown) {
-      console.error('Detailed error in create-checkout-session:', error);
-      if (error instanceof Error) {
-        res.status(500).json({ statusCode: 500, message: error.message });
-      } else {
-        res.status(500).json({ statusCode: 500, message: 'An unknown error occurred' });
+      try {
+        const createdOrder = await orderService.createOrder(order);
+        console.log('Order created successfully:', JSON.stringify(createdOrder, null, 2));
+        res.status(200).json({ id: session.id, orderId: createdOrder.id });
+      } catch (error) {
+        console.error('Error creating order:', error);
+        res.status(500).json({ error: 'Failed to create order' });
       }
+    } catch (error) {
+      // Detailed error logging
+      console.error('Detailed error in create-checkout-session:', error);
+      
+      // Send a more informative error response
+      res.status(500).json({ 
+        message: 'An error occurred during checkout',
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   } else {
     res.setHeader('Allow', 'POST');
-    res.status(405).end('Method Not Allowed');
+    res.status(405).json({ message: 'Method Not Allowed' });
   }
 }

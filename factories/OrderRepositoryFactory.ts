@@ -1,7 +1,7 @@
 import { IOrderRepository } from '../db/interfaces/IOrderRepository';
 //import { MongoOrderRepository } from '../db/mongodb/repositories/MongoOrderRepository';
 //import { FirebaseOrderRepository } from '../db/firebase/repositories/FirebaseOrderRepository';
-import { MySQLOrderRepository } from '../db/mysql/repositories/MySQLOrderRepository';
+//import { MySQLOrderRepository } from '../db/mysql/repositories/MySQLOrderRepository';
 import { SupabaseOrderRepository } from '../db/supabase/repositories/SupabaseOrderRepository';
 //import { FlaskOrderRepository } from '../db/flask/repositories/FlaskOrderRepository';
 import { JsonOrderRepository } from '../db/json/repositories/JsonOrderRepository';
@@ -15,7 +15,7 @@ export class OrderRepositoryFactory {
         //return new FirebaseOrderRepository();
         throw new Error('Firebase repository not implemented');
       case 'mysql':
-        return new MySQLOrderRepository();
+        throw new Error('mysql repository not implemented');
       case 'supabase':
         return new SupabaseOrderRepository();
       case 'flask':

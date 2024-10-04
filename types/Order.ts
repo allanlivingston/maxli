@@ -17,14 +17,26 @@ export interface Order {
   total: number;
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
-  created_at: Date; // Change this from 'created_at' to 'created_at'
+  created_at?: Date; // Make this optional
 }
 
 export interface OrderItem {
-  id: string;
+  id: number;
   name: string;
-  quantity: number;
   price: number;
+  quantity: number;
+  capacity?: string;
+  icon?: any;
+  type?: string;
+  imageName?: string;
+  imagePath?: string;
+  // Keep the price_data structure for compatibility with existing code
+  price_data?: {
+    product_data?: {
+      name?: string;
+    };
+    unit_amount?: number;
+  };
 }
 
 export type OrderStatus = 'pending' | 'paid' | 'cancelled' | 'shipped' | 'delivered';

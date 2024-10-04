@@ -31,20 +31,17 @@ export class OrderService implements IOrderService {
     return order;
   }
 
-  async createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<Order> {
+  async createOrder(order: Omit<Order, 'id'>): Promise<Order> {
     try {
-      console.log('OrderService: Creating order with data:', orderData);
-      const orderWithTimestamp = {
-        ...orderData,
-        created_at: new Date(),
-      };
-      const createdDBOrder = await this.orderRepository.create(orderWithTimestamp);
-      console.log('OrderService: Order created successfully:', createdDBOrder);
-      const createdOrder = this.convertToOrder(createdDBOrder);
-      return createdOrder;
+      console.log('OrderService: Creating order with data:', JSON.stringify(order, null, 2));
+      const createdOrder = await this.orderRepository.create(order);
+      console.log('OrderService: Order created successfully:', JSON.stringify(createdOrder, null, 2));
+      
+      // Add this line to ensure the id property is present
+      return { id: createdOrder._id, ...createdOrder };
     } catch (error) {
       console.error('OrderService: Error creating order:', error);
-      throw new Error('Failed to create order');
+      throw error;
     }
   }
 

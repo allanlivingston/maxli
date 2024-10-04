@@ -1,0 +1,21 @@
+{
+  "_id": "6541b3fb-fc36-4b7b-9070-56fc1c084612",
+  "stripeSessionId": "cs_test_a1Qx1isXOMhpxjve2G96kThurcNMjhaAffKjNRfcSle0NAA5wVQ00rnnnX",
+  "userId": "4cda27c1-0321-4d94-a546-1f3a2a03f617",
+  "items": [
+    {
+      "id": 3,
+      "name": "Coastal Cruiser",
+      "capacity": "1000Wh",
+      "price": 499.99,
+      "icon": {},
+      "type": "ebike",
+      "imageName": "coastal-cruiser.jpg",
+      "imagePath": "/images/batteries/ebike/coastal-cruiser.jpg",
+      "quantity": 1
+    }
+  ],
+  "total": 499.99,
+  "status": "pending",
+  "created_at": "2024-10-04T05:27:00.503Z"
+}

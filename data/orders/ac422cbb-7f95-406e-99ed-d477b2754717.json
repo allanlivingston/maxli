@@ -1,0 +1,20 @@
+{
+  "_id": "ac422cbb-7f95-406e-99ed-d477b2754717",
+  "userId": "2b12fa68-8a2e-464c-b9b9-d8d8745b6538",
+  "stripeSessionId": "cs_test_a1NzOJN7r3FiUgnUuUpRWIHJLl365zMNhTc1lJiusN61ia0akdJGWAciNH",
+  "items": [
+    {
+      "price_data": {
+        "currency": "usd",
+        "product_data": {
+          "name": "Coastal Cruiser"
+        },
+        "unit_amount": 49999
+      },
+      "quantity": 1
+    }
+  ],
+  "total": 499.99,
+  "status": "pending",
+  "created_at": "2024-10-04T05:37:44.043Z"
+}

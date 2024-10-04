@@ -1,15 +1,23 @@
 'use client';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 import React, { useEffect, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
 import { Order as OrderType } from '../types/Order'; // Rename the imported type
 
-// Remove the unused OrderItem interface
-// interface OrderItem {
-//   name: string;
-//   quantity: number;
-//   price: number;
-// }
+// Define a basic type for order items
+type OrderItem = {
+  price_data?: {
+    product_data?: {
+      name?: string;
+    };
+    unit_amount?: number;
+  };
+  name?: string;
+  quantity?: number;
+  price?: number;
+};
 
 export default function Orders() {
   const [orders, setOrders] = useState<OrderType[]>([]); // Use the renamed type here
@@ -17,18 +25,78 @@ export default function Orders() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/get-orders')
-      .then(response => response.json())
-      .then(data => {
-        setOrders(data);
-        setIsLoading(false);
-      })
-      .catch(err => {
+    const fetchOrders = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const guestId = localStorage.getItem('guestId');
+
+        console.log('Sending request with:', { userId, guestId });
+
+        const response = await fetch('/api/get-orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId, guestId }),
+        });
+
+        const data = await response.json();
+        console.log('Fetched orders data:', data);
+
+        if (Array.isArray(data)) {
+          setOrders(data);
+        } else if (data.error) {
+          setError(data.error);
+        } else {
+          console.error('Fetched data is not an array:', data);
+          setError('Received invalid data format from server.');
+        }
+      } catch (err) {
         console.error('Error fetching orders:', err);
         setError('Failed to load orders. Please try again later.');
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchOrders();
   }, []);
+
+  const getItemName = (item: OrderItem | string): string => {
+    if (typeof item === 'string') return item;
+    if (item.price_data?.product_data?.name) return item.price_data.product_data.name;
+    if (item.name) return item.name;
+    return 'Unknown Item';
+  };
+
+  const getItemQuantity = (item: OrderItem): number => {
+    return item.quantity || 1;
+  };
+
+  const getItemPrice = (item: OrderItem): number => {
+    if (item.price_data?.unit_amount) return item.price_data.unit_amount / 100;
+    if (item.price) return item.price;
+    return 0;
+  };
+
+  const renderOrderItems = (items: OrderItem[] | Record<string, number>) => {
+    if (Array.isArray(items)) {
+      return items.map((item, index) => (
+        <div key={index} className="flex justify-between text-stone-300 mb-2">
+          <span>{getItemName(item)} x{getItemQuantity(item)}</span>
+          <span>${(getItemPrice(item) * getItemQuantity(item)).toFixed(2)}</span>
+        </div>
+      ));
+    } else if (typeof items === 'object') {
+      return Object.entries(items).map(([key, value], index) => (
+        <div key={index} className="flex justify-between text-stone-300 mb-2">
+          <span>{key} x{typeof value === 'number' ? value : 1}</span>
+          <span>Price not available</span>
+        </div>
+      ));
+    }
+    return <div className="text-stone-300 mb-2">No items available</div>;
+  };
 
   if (isLoading) {
     return <div className="text-stone-300 text-xl">Loading orders...</div>;
@@ -38,7 +106,7 @@ export default function Orders() {
     return <div className="text-red-500">{error}</div>;
   }
 
-  if (orders.length === 0) {
+  if (!Array.isArray(orders) || orders.length === 0) {
     return (
       <div className="text-center py-12">
         <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-600" />
@@ -66,15 +134,10 @@ export default function Orders() {
             </span>
           </div>
           <div className="border-t border-stone-700 pt-4 mb-4">
-            {order.items.map((item, index) => (
-              <div key={index} className="flex justify-between text-stone-300 mb-2">
-                <span>{item.name} x{item.quantity}</span>
-                <span>${(item.price / 100).toFixed(2)}</span>
-              </div>
-            ))}
+            {renderOrderItems(order.items)}
           </div>
           <div className="text-right text-lg font-bold text-emerald-500">
-            Total: ${(order.total / 100).toFixed(2)}
+            Total: ${(order.total ).toFixed(2)}
           </div>
         </div>
       ))}

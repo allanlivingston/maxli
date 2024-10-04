@@ -3,9 +3,9 @@ import { DBOrder } from '../../../types/Order';
 import { supabase } from '../../../lib/supabaseClient';
 
 export class SupabaseOrderRepository implements IOrderRepository {
-  async create(order: Omit<DBOrder, 'id'>): Promise<DBOrder> {
+  async create(order: Omit<DBOrder, 'id' | 'created_at'>): Promise<DBOrder> {
     try {
-      console.log('SupabaseOrderRepository: Attempting to create order:', order);
+      console.log('SupabaseOrderRepository: Attempting to create order:', JSON.stringify(order, null, 2));
 
       const { data, error } = await supabase
         .from('orders')
@@ -18,7 +18,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
         throw error;
       }
 
-      console.log('SupabaseOrderRepository: Order created successfully:', data);
+      console.log('SupabaseOrderRepository: Order created successfully:', JSON.stringify(data, null, 2));
       return data as DBOrder;
     } catch (error) {
       console.error('SupabaseOrderRepository: Error creating order:', error);
