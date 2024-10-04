@@ -29,6 +29,10 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
   const handleCheckout = async () => {
     setIsLoading(true);
     try {
+      console.log('Initiating checkout with items:', items);
+      console.log('Delivery method:', deliveryMethod);
+      console.log('Shipping cost:', shippingCost);
+
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: {
@@ -49,17 +53,28 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
         }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response from server:', errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const { id: sessionId } = await response.json();
+      console.log('Received session ID:', sessionId);
 
       const stripe = await stripePromise;
-      if (stripe) {
-        const { error } = await stripe.redirectToCheckout({ sessionId });
-        if (error) {
-          console.error('Stripe checkout error:', error);
-        }
+      if (!stripe) {
+        throw new Error('Failed to initialize Stripe');
+      }
+
+      const { error } = await stripe.redirectToCheckout({ sessionId });
+      if (error) {
+        console.error('Stripe checkout error:', error);
+        throw error;
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
+      // TODO: Show error message to user
     } finally {
       setIsLoading(false);
     }
