@@ -34,9 +34,14 @@ export class OrderService implements IOrderService {
   async createOrder(orderData: Omit<Order, 'id' | 'created_at'>): Promise<Order> {
     try {
       console.log('OrderService: Creating order with data:', orderData);
-      const dbOrder = await this.orderRepository.create(orderData);
-      console.log('OrderService: Order created:', dbOrder);
-      return this.convertToOrder(dbOrder);
+      const orderWithTimestamp = {
+        ...orderData,
+        created_at: new Date(),
+      };
+      const createdDBOrder = await this.orderRepository.create(orderWithTimestamp);
+      console.log('OrderService: Order created successfully:', createdDBOrder);
+      const createdOrder = this.convertToOrder(createdDBOrder);
+      return createdOrder;
     } catch (error) {
       console.error('OrderService: Error creating order:', error);
       throw new Error('Failed to create order');

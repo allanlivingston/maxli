@@ -72,6 +72,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const session = await stripe.checkout.sessions.create(sessionOptions);
 
+      console.log('Stripe session created:', session);
+
       const orderTotal = (session.amount_total || 0) / 100; // Convert back to dollars
 
       const order: Omit<Order, 'id' | 'created_at'> = {
@@ -83,11 +85,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         shippingAddress: undefined,
       };
 
+      console.log('Attempting to create order:', order);
+
       const createdOrder = await orderService.createOrder(order);
+
+      console.log('Order created successfully:', createdOrder);
 
       res.status(200).json({ id: session.id, orderId: createdOrder.id });
     } catch (error: unknown) {
-      console.error('Error in create-checkout-session:', error);
+      console.error('Detailed error in create-checkout-session:', error);
       if (error instanceof Error) {
         res.status(500).json({ statusCode: 500, message: error.message });
       } else {
