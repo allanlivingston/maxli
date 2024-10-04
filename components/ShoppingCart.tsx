@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { CartItem } from "@/hooks/useCart"
 import { Minus, Plus, X, Lock, Truck, Store, ShoppingCart as CartIcon } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js';
+import { getOrCreateGuestId } from '../utils/guestId';
 // Remove the unused import:
 // import * as RadioGroup from '@radix-ui/react-radio-group';
 
@@ -37,6 +38,8 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
   const handleCheckout = async () => {
     setIsLoading(true); // Set loading to true when starting checkout
     try {
+      const guestId = getOrCreateGuestId(); // Updated to use the new function
+
       console.log("Initiating checkout with items:", items);
       console.log("Delivery method:", deliveryMethod);
       console.log("Shipping cost:", shippingCost);
@@ -50,6 +53,7 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
           items,
           deliveryMethod,
           shippingCost,
+          guestId, // Include the guestId in the request
         }),
       });
 

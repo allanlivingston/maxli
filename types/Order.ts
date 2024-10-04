@@ -1,7 +1,7 @@
 export interface DBOrder {
   _id: string;
   stripeSessionId: string;
-  userId: string;
+  userid: string;  // Ensure this matches the column name in Supabase
   items: OrderItem[];
   total: number;
   status: OrderStatus;
@@ -12,12 +12,12 @@ export interface DBOrder {
 export interface Order {
   id: string;
   stripeSessionId: string;
-  userId: string;
+  userid: string;  // Ensure this matches the column name in Supabase
   items: OrderItem[];
   total: number;
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
-  created_at?: Date; // Make this optional
+  created_at?: Date;
 }
 
 export interface OrderItem {

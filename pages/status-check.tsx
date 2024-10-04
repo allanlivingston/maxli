@@ -1,6 +1,6 @@
 import { GetServerSideProps, NextPage } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { getGuestId } from '../utils/guestId'; // Import the getGuestId function
+import { getOrCreateGuestId } from '../utils/guestId'; // Import the getOrCreateGuestId function
 
 interface KeyCheckProps {
   isStripeKeySet: boolean;
@@ -51,7 +51,7 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const isStripeKeySet = !!process.env.STRIPE_SECRET_KEY;
   const isSupabaseUrlSet = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const isSupabaseAnonKeySet = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -79,7 +79,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const buildTime = process.env.BUILD_TIME || 'Not available';
   
   // Generate or retrieve the temporary user ID
-  const tempUserId = getGuestId();
+  const tempUserId = getOrCreateGuestId(req, res);
 
   return {
     props: {
@@ -88,7 +88,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
       isSupabaseAnonKeySet,
       supabaseConnectionStatus,
       buildTime,
-      tempUserId // Add this line
+      tempUserId
     },
   };
 };

@@ -7,4 +7,5 @@ export interface IOrderRepository {
   update(id: string, orderData: Partial<DBOrder>): Promise<DBOrder | null>;
   delete(id: string): Promise<boolean>;
   findAll(limit?: number): Promise<DBOrder[]>;
+  findByUserId(userId: string): Promise<DBOrder[]>;
 }

@@ -5,15 +5,18 @@ import { OrderRepositoryFactory } from '../factories/OrderRepositoryFactory';
 import { JsonOrderRepository } from '../db/json/repositories/JsonOrderRepository';
 import fs from 'fs/promises';
 import path from 'path';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export class OrderService implements IOrderService {
   private orderRepository: IOrderRepository;
   private logDir: string;
+  private supabase: SupabaseClient;
 
-  constructor() {
+  constructor(supabase: SupabaseClient) {
     this.orderRepository = OrderRepositoryFactory.getRepository();
     // Assuming we're using JsonOrderRepository. If not, we'll fall back to a default.
     this.logDir = (this.orderRepository as JsonOrderRepository).getDataDir?.() || path.join(process.cwd(), 'logs');
+    this.supabase = supabase;
   }
 
   private async logToFile(message: string) {
@@ -138,6 +141,23 @@ export class OrderService implements IOrderService {
     } catch (error) {
       await this.logToFile(`Error updating shipping address: ${error}`);
       throw new Error('Failed to update shipping address');
+    }
+  }
+
+  async getOrdersByUserId(userid: string): Promise<Order[]> {
+    try {
+      console.log('OrderService: Getting orders by user ID:', userid);
+      const { data, error } = await this.supabase
+        .from('orders')
+        .select('*')
+        .eq('userid', userid);  // Ensure this matches the column name in Supabase
+
+      if (error) throw error;
+
+      return data ? data.map(this.convertToOrder) : [];
+    } catch (error) {
+      console.error('Error fetching orders by user ID:', error);
+      throw new Error('Failed to fetch orders by user ID');
     }
   }
 

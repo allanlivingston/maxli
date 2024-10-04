@@ -2,8 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
 import { Order, OrderItem, OrderStatus } from '../../types/Order';
-//import { getSession } from 'next-auth/react'; // If using NextAuth.js
-import { getGuestId } from '../../utils/guestId';
+import { getOrCreateGuestId } from '../../utils/guestId';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -12,23 +11,16 @@ const stripe = process.env.STRIPE_SECRET_KEY
 const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Get the user session
-  // const session = await getSession({ req });
-  
-  // Use optional chaining and nullish coalescing with a more specific type assertion
-  const userId = req.body.guestId ?? getGuestId();
-
-  if (!stripe) {
-    console.error('Stripe has not been initialized. Check STRIPE_SECRET_KEY.');
-    return res.status(500).json({ error: 'Stripe is not configured correctly.' });
-  }
-
   if (req.method === 'POST') {
     try {
-      // Log the incoming request
       console.log('Received checkout request:', req.body);
 
       const { items, deliveryMethod, shippingCost } = req.body;
+      const guestId = getOrCreateGuestId(req, res);  // Pass both req and res
+
+      if (!guestId) {
+        return res.status(400).json({ error: 'guestId is required' });
+      }
 
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item: OrderItem) => ({
         price_data: {
@@ -91,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('Calculated orderTotal:', orderTotal);
 
       const order: Omit<Order, 'id'> = {
-        userId,
+        userid: guestId, // Use lowercase 'userid' to match the database column
         stripeSessionId: session.id,
         items: items, // Use the original items from the request body instead of lineItems
         total: parseFloat(orderTotal),
@@ -122,6 +114,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   } else {
     res.setHeader('Allow', 'POST');
-    res.status(405).json({ message: 'Method Not Allowed' });
+    res.status(405).end('Method Not Allowed');
   }
 }

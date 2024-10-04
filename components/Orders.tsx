@@ -2,7 +2,8 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useGuestId } from '../utils/guestId';
 import { ShoppingBag } from 'lucide-react';
 import { Order as OrderType } from '../types/Order'; // Rename the imported type
 
@@ -23,44 +24,35 @@ export default function Orders() {
   const [orders, setOrders] = useState<OrderType[]>([]); // Use the renamed type here
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const guestId = useGuestId();
+
+  const fetchOrders = useCallback(async () => {
+    if (!guestId) return;
+
+    try {
+      console.log('Orders component: Fetching orders for guestId:', guestId);
+
+      const response = await fetch(`/api/get-orders?guestId=${guestId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+
+      const data = await response.json();
+      console.log(`Orders component: Received ${data.length} orders`);
+      setOrders(data);
+    } catch (err) {
+      console.error('Orders component: Error fetching orders:', err);
+      setError('Failed to load orders. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [guestId]);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const userId = localStorage.getItem('userId');
-        const guestId = localStorage.getItem('guestId');
-
-        console.log('Sending request with:', { userId, guestId });
-
-        const response = await fetch('/api/get-orders', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId, guestId }),
-        });
-
-        const data = await response.json();
-        console.log('Fetched orders data:', data);
-
-        if (Array.isArray(data)) {
-          setOrders(data);
-        } else if (data.error) {
-          setError(data.error);
-        } else {
-          console.error('Fetched data is not an array:', data);
-          setError('Received invalid data format from server.');
-        }
-      } catch (err) {
-        console.error('Error fetching orders:', err);
-        setError('Failed to load orders. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
+    if (guestId) {
+      fetchOrders();
+    }
+  }, [guestId, fetchOrders]);
 
   const getItemName = (item: OrderItem | string): string => {
     if (typeof item === 'string') return item;
@@ -98,12 +90,12 @@ export default function Orders() {
     return <div className="text-stone-300 mb-2">No items available</div>;
   };
 
-  if (isLoading) {
-    return <div className="text-stone-300 text-xl">Loading orders...</div>;
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
+  if (isLoading) {
+    return <div>Loading orders...</div>;
   }
 
   if (!Array.isArray(orders) || orders.length === 0) {

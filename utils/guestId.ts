@@ -1,13 +1,24 @@
-import { v4 as uuidv4 } from 'uuid';
+import { useState, useEffect } from 'react';
 
-export function getGuestId(): string {
-  if (typeof window !== 'undefined') {
-    let guestId = localStorage.getItem('guestId');
-    if (!guestId) {
-      guestId = uuidv4();
-      localStorage.setItem('guestId', guestId);
+export function useGuestId() {
+  const [guestId, setGuestId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchGuestId() {
+      try {
+        const response = await fetch('/api/get-guest-id');
+        if (!response.ok) {
+          throw new Error('Failed to fetch guest ID');
+        }
+        const data = await response.json();
+        setGuestId(data.guestId);
+      } catch (error) {
+        console.error('Error fetching guest ID:', error);
+      }
     }
-    return guestId;
-  }
-  return uuidv4(); // Fallback for server-side
+
+    fetchGuestId();
+  }, []);
+
+  return guestId;
 }

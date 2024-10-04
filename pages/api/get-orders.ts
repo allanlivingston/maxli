@@ -1,45 +1,40 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { OrderService } from '../../services/OrderService';
 
-// Initialize Supabase client
+// Load environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
+if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Use the service role key for admin operations
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'GET') {
+    try {
+      const { guestId } = req.query;
+      
+      if (!guestId || typeof guestId !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing guestId' });
+      }
 
-  const { userId, guestId } = req.body;
+      console.log('API: Fetching orders for guestId:', guestId);
 
- // if (!userId && !guestId) {
- //   return res.status(400).json({ error: 'User ID or Guest ID is required' });
- // }
-
-  try {
-    let query = supabase
-      .from('orders')
-      .select('*');
-
-    if (userId) {
-      query = query.eq('user_id', userId);
-    } else if (guestId) {
-      query = query.eq('guest_id', guestId);
+      const orderService = new OrderService(supabaseAdmin);
+      const orders = await orderService.getOrdersByUserId(guestId);
+      console.log(`API: Found ${orders.length} orders for guestId:`, guestId);
+      res.status(200).json(orders);
+    } catch (error) {
+      console.error('API: Error fetching orders:', error);
+      res.status(500).json({ error: 'Failed to fetch orders' });
     }
-
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    res.status(500).json({ error: 'Internal server error' });
+  } else {
+    res.setHeader('Allow', 'GET');
+    res.status(405).end('Method Not Allowed');
   }
 }

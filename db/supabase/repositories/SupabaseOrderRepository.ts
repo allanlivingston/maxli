@@ -105,4 +105,18 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
     return data as DBOrder[];
   }
+
+  async findByUserId(userId: string): Promise<DBOrder[]> {
+    const { data, error } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('userid', userId);  // Note the lowercase 'userid'
+
+    if (error) {
+      console.error('Error fetching orders by userId:', error);
+      throw new Error('Failed to fetch orders by userId');
+    }
+
+    return data || [];
+  }
 }
