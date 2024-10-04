@@ -1,25 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import { ShoppingBag } from 'lucide-react';
+import { Order as OrderType } from '../types/Order'; // Rename the imported type
 
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  id: string;
-  amount: number;
-  date: string;
-  status: string;
-  items: OrderItem[];
-}
+// Remove the unused OrderItem interface
+// interface OrderItem {
+//   name: string;
+//   quantity: number;
+//   price: number;
+// }
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderType[]>([]); // Use the renamed type here
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +42,7 @@ export default function Orders() {
     return (
       <div className="text-center py-12">
         <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-600" />
-        <p className="text-xl text-stone-300">You haven't placed any orders yet.</p>
+        <p className="text-xl text-stone-300">You have not placed any orders yet.</p>
       </div>
     );
   }
@@ -60,7 +53,11 @@ export default function Orders() {
         <div key={order.id} className="bg-stone-800 shadow-lg rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <span className="text-emerald-500 font-semibold">Order ID: {order.id}</span>
-            <span className="text-stone-400">{order.date}</span>
+            <span className="text-stone-400">
+              {order.createdAt 
+                ? new Date(order.createdAt).toLocaleString()
+                : 'Date not available'}
+            </span>
           </div>
           <div className="mb-4">
             <span className="text-stone-300">Status: </span>
@@ -77,7 +74,7 @@ export default function Orders() {
             ))}
           </div>
           <div className="text-right text-lg font-bold text-emerald-500">
-            Total: ${(order.amount / 100).toFixed(2)}
+            Total: ${(order.total / 100).toFixed(2)}
           </div>
         </div>
       ))}

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { CartItem } from "@/hooks/useCart"
 import { Minus, Plus, X, Lock, Truck, Store, ShoppingCart as CartIcon } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js';
-import * as RadioGroup from '@radix-ui/react-radio-group';
+// Remove the unused import:
+// import * as RadioGroup from '@radix-ui/react-radio-group';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -69,7 +70,7 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
       <div className="bg-stone-800 p-6 rounded-lg shadow-lg text-center">
         <CartIcon className="w-16 h-16 text-stone-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-stone-300 mb-2">Your cart is empty</h2>
-        <p className="text-stone-400 mb-4">Looks like you haven't added any items to your cart yet.</p>
+        <p className="text-stone-400 mb-4">Looks like you haven&apos;t added any items to your cart yet.</p>
       </div>
     );
   }

@@ -1,22 +1,47 @@
 'use client'
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Battery, ShoppingCart, Menu, Trees, Waves, Sun, Wind, Trash2, Plus, Minus, Package } from "lucide-react"
+import { Battery, ShoppingCart, Menu, Trees, Waves } from "lucide-react"
 import * as Tooltip from '@radix-ui/react-tooltip'
 import { ShoppingCart as Cart } from "./ShoppingCart"
 import { useCart } from "@/hooks/useCart"
 import Image from 'next/image'
 import { ebikeBatteries, surfboardBatteries, BatteryProduct } from '@/lib/productData'
 import { MiniCart } from '@/components/MiniCart';
-import { ErrorBoundary } from 'react-error-boundary';
 import Orders from '@/components/Orders'  // Import the Orders component
 import { useSearchParams } from 'next/navigation';
 
-export function EnhancedNorcalBatteryStore() {
+// Add this interface at the top of the file
+interface EnhancedNorcalBatteryStoreProps {
+  onLogoClick?: () => void;
+}
+
+function SearchParamsWrapper({ setSuccessMessage, setActiveTab }: { setSuccessMessage: (message: string | null) => void, setActiveTab: (tab: string) => void }) {
+  const searchParams = useSearchParams();
+  
+  useEffect(() => {
+    if (searchParams) {
+      console.log('Search params:', Object.fromEntries(searchParams.entries()));
+      if (searchParams.get('orderSuccess') === 'true') {
+        console.log('Order success detected');
+        setSuccessMessage('Your order has been successfully placed!');
+        setActiveTab("orders");
+      } else if (searchParams.get('orderError') === 'true') {
+        console.log('Order error detected');
+        setSuccessMessage('There was an error processing your order. Please try again.');
+        alert('Error processing order.');
+      }
+    }
+  }, [searchParams, setSuccessMessage, setActiveTab]);
+
+  return null;
+}
+
+export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatteryStoreProps) {
   const [activeTab, setActiveTab] = useState("home")
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeBatteryType, setActiveBatteryType] = useState("ebike")
@@ -25,7 +50,6 @@ export function EnhancedNorcalBatteryStore() {
   const cartRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const searchParams = useSearchParams();
 
   const handleCartEnter = () => {
     if (timeoutRef.current) {
@@ -62,6 +86,8 @@ export function EnhancedNorcalBatteryStore() {
     setMenuOpen(false);
     setActiveBatteryType("ebike");
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Call the onLogoClick prop if it exists
+    onLogoClick?.();
   };
 
   const handleGoToCart = () => {
@@ -132,23 +158,21 @@ export function EnhancedNorcalBatteryStore() {
     )
   }
 
-  useEffect(() => {
-    console.log('Search params:', Object.fromEntries(searchParams.entries()));
-    if (searchParams.get('orderSuccess') === 'true') {
-      console.log('Order success detected');
-      setSuccessMessage('Your order has been successfully placed!');
-      setActiveTab("orders");
-      //alert('Order placed successfully!');
-    } else if (searchParams.get('orderError') === 'true') {
-      console.log('Order error detected');
-      setSuccessMessage('There was an error processing your order. Please try again.');
-      alert('Error processing order.');
-    }
-  }, [searchParams]);
-
   return (
     <div className="flex flex-col min-h-screen bg-stone-900 text-stone-100 font-sans">
-      <header className="sticky top-0 z-10 bg-stone-800 border-b border-stone-700">
+      <Suspense fallback={<div>Loading...</div>}>
+        <SearchParamsWrapper setSuccessMessage={setSuccessMessage} setActiveTab={setActiveTab} />
+      </Suspense>
+
+      <header className="sticky top-0 z-10 bg-stone-800 border-b /app/page.tsx:13:38
+Type error: Type '{ onLogoClick: () => void; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'onLogoClick' does not exist on type 'IntrinsicAttributes'.
+
+  11 |   };
+  12 |
+> 13 |   return <EnhancedNorcalBatteryStore onLogoClick={handleLogoClick} />;
+     |                                      ^
+  14 | }border-stone-700">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <a 
             href="/" 
@@ -255,7 +279,13 @@ export function EnhancedNorcalBatteryStore() {
                 "Golden Gate", "Napa Vineyard", "Tahoe Vista", "Yosemite Falls"
               ].map((place, i) => (
                 <div key={i} className="aspect-square bg-stone-800 rounded-lg overflow-hidden">
-                  <img src={`/placeholder.svg?height=300&width=300&text=${place}`} alt={place} className="object-cover w-full h-full hover:opacity-75 transition-opacity" />
+                  <Image 
+                    src={`/placeholder.svg?height=300&width=300&text=${place}`}
+                    alt={place}
+                    width={300}
+                    height={300}
+                    className="object-cover w-full h-full hover:opacity-75 transition-opacity"
+                  />
                 </div>
               ))}
             </div>
@@ -267,12 +297,12 @@ export function EnhancedNorcalBatteryStore() {
             <h2 className="text-2xl md:text-3xl font-bold text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>Powered by the Rideout Spirit—Make What You Have Better.</h2>
             <div className="bg-stone-800 p-6 rounded-lg shadow-lg">
               <p className="text-stone-300 mb-4">
-              Op Point is more than just batteries; it's about embracing the rideout spirit and making the most of what you've got. From early morning surf checks to late-night scooter sessions and e-bike commutes, our roots are in garage workshops and the untamed streets of NorCal. We build power solutions that keep you rolling, wherever your journey takes you.</p>
+              Op Point is more than just batteries; it&apos;s about embracing the rideout spirit and making the most of what you&apos;ve got. From early morning surf checks to late-night scooter sessions and e-bike commutes, our roots are in garage workshops and the untamed streets of NorCal. We build power solutions that keep you rolling, wherever your journey takes you.</p>
               <p className="text-stone-300 mb-4">
-              We're here for those who don't just buy new—those who upgrade, enhance, and ride what they've built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you're pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you're just getting started, we're here to help you build it exactly how you want it.
+              We&apos;re here for those who don&apos;t just buy new—those who upgrade, enhance, and ride what they&apos;ve built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you&apos;re pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you&apos;re just getting started, we&apos;re here to help you build it exactly how you want it.
               </p>
               <p className="text-stone-300">
-              Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with OPbattery, you're not just riding—you're creating, upgrading, and living the ride your way.              </p>
+              Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with OPbattery, you&apos;re not just riding—you&apos;re creating, upgrading, and living the ride your way.              </p>
             </div>
           </div>
         )}
@@ -282,7 +312,7 @@ export function EnhancedNorcalBatteryStore() {
             <h2 className="text-2xl md:text-3xl font-bold text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>Connect with Us</h2>
             <div className="bg-stone-800 p-6 rounded-lg shadow-lg">
               <p className="text-stone-300 mb-4">
-                Have questions about our eco-friendly power solutions? Want to share your OP Batteries adventure story? We'd love to hear from you!
+                Have questions about our eco-friendly power solutions? Want to share your OP Batteries adventure story? We&apos;d love to hear from you!
               </p>
               <div className="space-y-2 text-stone-300">
                 <p><strong>Email:</strong> hello@opbattery.com</p>

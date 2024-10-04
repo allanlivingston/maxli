@@ -1,12 +1,15 @@
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const webhookUrl = process.env.WEBHOOK_URL; // e.g., 'https://your-domain.com/api/webhook'
 
 async function setupWebhook() {
+  if (!webhookUrl) {
+    console.error('WEBHOOK_URL is not defined in the environment variables.');
+    process.exit(1);
+  }
+
   try {
     // List all webhook endpoints
     const webhooks = await stripe.webhookEndpoints.list();

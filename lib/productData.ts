@@ -1,11 +1,11 @@
-import { Battery, Sun, Wind } from 'lucide-react'
+import { Battery, Sun, Wind, LucideIcon } from 'lucide-react'
 
 export interface BatteryProduct {
   id: number;
   name: string;
   capacity: string;
   price: number;
-  icon: any; // You might want to define a more specific type for icons
+  icon: LucideIcon; // Changed from 'any' to 'LucideIcon'
   type: 'ebike' | 'surfboard';
   imageName: string; // New field for the image filename
 }

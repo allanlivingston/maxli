@@ -1,5 +1,5 @@
 import { IOrderRepository } from '../../interfaces/IOrderRepository';
-import { DBOrder, OrderStatus } from '../../../types/Order';
+import { DBOrder, OrderStatus, ShippingAddress } from '../../../types/Order';
 import mysql from 'mysql2/promise';
 
 export class MySQLOrderRepository implements IOrderRepository {
@@ -59,21 +59,39 @@ export class MySQLOrderRepository implements IOrderRepository {
   }
 
   async findById(id: string): Promise<DBOrder | null> {
-    const [rows] = await this.pool.execute('SELECT * FROM orders WHERE id = ?', [id]);
-    if ((rows as any[]).length === 0) return null;
+    const [rows] = await this.pool.execute('SELECT * FROM orders WHERE id = ?', [id]) as [mysql.RowDataPacket[], mysql.FieldPacket[]];
+    if (rows.length === 0) return null;
 
-    const order = (rows as any[])[0];
-    const [items] = await this.pool.execute('SELECT * FROM order_items WHERE order_id = ?', [id]);
-    const [address] = await this.pool.execute('SELECT * FROM shipping_addresses WHERE order_id = ?', [id]);
+    const order = rows[0];
+    const [items] = await this.pool.execute('SELECT * FROM order_items WHERE order_id = ?', [id]) as [mysql.RowDataPacket[], mysql.FieldPacket[]];
+    const [addressRows] = await this.pool.execute('SELECT * FROM shipping_addresses WHERE order_id = ?', [id]) as [mysql.RowDataPacket[], mysql.FieldPacket[]];
+
+    let shippingAddress: ShippingAddress | undefined;
+    if (addressRows.length > 0) {
+      const address = addressRows[0];
+      shippingAddress = {
+        line1: address.line1,
+        line2: address.line2 || undefined,
+        city: address.city,
+        state: address.state,
+        postal_code: address.postal_code,
+        country: address.country
+      };
+    }
 
     return {
       _id: order.id.toString(),
       stripeSessionId: order.stripe_session_id,
       userId: order.user_id,
-      items: items as any[],
+      items: items.map(item => ({
+        id: item.product_id,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price
+      })),
       total: order.total,
       status: order.status as OrderStatus,
-      shippingAddress: address[0] || undefined,
+      shippingAddress,
       createdAt: order.created_at,
     };
   }

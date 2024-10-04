@@ -2,14 +2,13 @@ import { buffer } from 'micro';
 import Stripe from 'stripe';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OrderService } from '../../services/OrderService';
-import { ShippingAddress } from '../../types/Order';
+// Remove the unused import:
+// import { ShippingAddress } from '../../types/Order';
 import { JsonOrderRepository } from '../../db/json/repositories/JsonOrderRepository';
 import fs from 'fs/promises';
 import path from 'path';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
 export const config = {
@@ -30,6 +29,7 @@ async function logToFile(message: string) {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
+    await logToFile('Webhook received');
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature']!;
 
@@ -37,53 +37,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
-    } catch (err: any) {
-      await logToFile(`Webhook Error: ${err.message}`);
-      res.status(400).send(`Webhook Error: ${err.message}`);
+      await logToFile(`Event constructed: ${event.type}`);
+    } catch (err: unknown) { // Change 'any' to 'unknown'
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      await logToFile(`Webhook Error: ${errorMessage}`);
+      res.status(400).send(`Webhook Error: ${errorMessage}`);
       return;
     }
 
-    await logToFile(`Received event type: ${event.type}`);
-
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      await logToFile(`Checkout session completed: ${session.id}`);
-      
+      await logToFile(`Checkout completed: ${session.id}`);
+
       try {
         const order = await orderService.getOrderByStripeSessionId(session.id);
         if (order) {
-          await logToFile(`Found order: ${order.id}`);
-          
+          await logToFile(`Order found: ${order.id}`);
+          // Update order status
           await orderService.updateOrderStatus(order.id, 'paid');
-          await logToFile('Updated order status to paid');
+          await logToFile(`Order status updated to paid`);
 
-          if (session.shipping) {
-            await logToFile(`Shipping information found: ${JSON.stringify(session.shipping)}`);
-            const shippingAddress: ShippingAddress = {
-              line1: session.shipping.address.line1,
-              line2: session.shipping.address.line2 || undefined,
-              city: session.shipping.address.city,
-              state: session.shipping.address.state,
-              postal_code: session.shipping.address.postal_code,
-              country: session.shipping.address.country,
+          // Update shipping address if available
+          await logToFile(`Session customer details: ${JSON.stringify(session.customer_details)}`);
+          if (session.customer_details?.address) {
+            const shippingAddress = {
+              line1: session.customer_details.address.line1 || '',
+              line2: session.customer_details.address.line2 || undefined,
+              city: session.customer_details.address.city || '',
+              state: session.customer_details.address.state || '',
+              postal_code: session.customer_details.address.postal_code || '',
+              country: session.customer_details.address.country || '',
             };
-            await logToFile(`Updating shipping address: ${JSON.stringify(shippingAddress)}`);
-            const updatedOrder = await orderService.updateShippingAddress(order.id, shippingAddress);
-            if (updatedOrder) {
-              await logToFile(`Shipping address updated successfully: ${JSON.stringify(updatedOrder.shippingAddress)}`);
-            } else {
-              await logToFile('Failed to update shipping address');
-            }
+            await orderService.updateShippingAddress(order.id, shippingAddress);
+            await logToFile(`Shipping address updated for order: ${order.id}`);
           } else {
-            await logToFile('No shipping information in session');
+            await logToFile(`No shipping information for order: ${order.id}`);
           }
 
-          await logToFile(`Order ${order.id} processing completed`);
+          await logToFile(`Order ${order.id} updated successfully`);
         } else {
           await logToFile(`Order not found for session: ${session.id}`);
         }
       } catch (error) {
-        await logToFile(`Error processing order: ${error}`);
+        await logToFile(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 

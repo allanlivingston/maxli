@@ -73,7 +73,7 @@ export default function OrdersPage() {
         {orders.length === 0 ? (
           <div className="text-center py-12">
             <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-600" />
-            <p className="text-xl">You haven't placed any orders yet.</p>
+            <p className="text-xl">You have not placed any orders yet.</p>
             <Link href="/" className="mt-4 inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded transition duration-300">
               Start Shopping
             </Link>
