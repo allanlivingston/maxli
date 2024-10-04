@@ -1,12 +1,14 @@
 import { GetServerSideProps, NextPage } from 'next';
 import { createClient } from '@supabase/supabase-js';
+import { getGuestId } from '../utils/guestId'; // Import the getGuestId function
 
 interface KeyCheckProps {
   isStripeKeySet: boolean;
   isSupabaseUrlSet: boolean;
   isSupabaseAnonKeySet: boolean;
   supabaseConnectionStatus: string;
-  buildTime: string; // Add this line
+  buildTime: string;
+  tempUserId: string; // Add this line
 }
 
 const KeyCheck: NextPage<KeyCheckProps> = ({ 
@@ -14,7 +16,8 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
   isSupabaseUrlSet, 
   isSupabaseAnonKeySet, 
   supabaseConnectionStatus,
-  buildTime // Add this line
+  buildTime,
+  tempUserId // Add this line
 }) => {
   return (
     <div style={{ 
@@ -41,6 +44,9 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
       <p>
         Last Build Time: <strong>{buildTime}</strong>
       </p>
+      <p>
+        Temporary User ID: <strong>{tempUserId}</strong>
+      </p>
     </div>
   );
 };
@@ -59,7 +65,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
 
-      // Change this line
       await supabase.from('orders').select('*').limit(1);
 
       supabaseConnectionStatus = 'Connected Successfully';
@@ -71,13 +76,19 @@ export const getServerSideProps: GetServerSideProps = async () => {
     supabaseConnectionStatus = 'Not Attempted (Missing Credentials)';
   }
   
+  const buildTime = process.env.BUILD_TIME || 'Not available';
+  
+  // Generate or retrieve the temporary user ID
+  const tempUserId = getGuestId();
+
   return {
     props: {
       isStripeKeySet,
       isSupabaseUrlSet,
       isSupabaseAnonKeySet,
       supabaseConnectionStatus,
-      buildTime: process.env.BUILD_TIME!, // Add this line
+      buildTime,
+      tempUserId // Add this line
     },
   };
 };
