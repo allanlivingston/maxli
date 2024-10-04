@@ -3,11 +3,18 @@ import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
 import { Order, OrderItem } from '../../types/Order';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
 const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!stripe) {
+    console.error('Stripe has not been initialized. Check STRIPE_SECRET_KEY.');
+    return res.status(500).json({ error: 'Stripe is not configured correctly.' });
+  }
+
   if (req.method === 'POST') {
     try {
       const { items, deliveryMethod, shippingCost } = req.body;
@@ -79,6 +86,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       res.status(200).json({ id: session.id, orderId: createdOrder.id });
     } catch (error: unknown) {
+      console.error('Error in create-checkout-session:', error);
       if (error instanceof Error) {
         res.status(500).json({ statusCode: 500, message: error.message });
       } else {
