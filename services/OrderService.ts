@@ -5,18 +5,20 @@ import { OrderRepositoryFactory } from '../factories/OrderRepositoryFactory';
 import { JsonOrderRepository } from '../db/json/repositories/JsonOrderRepository';
 import fs from 'fs/promises';
 import path from 'path';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export class OrderService implements IOrderService {
   private orderRepository: IOrderRepository;
   private logDir: string;
   private supabase: SupabaseClient;
 
-  constructor(supabase: SupabaseClient) {
+  constructor() {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    this.supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
     this.orderRepository = OrderRepositoryFactory.getRepository();
-    // Assuming we're using JsonOrderRepository. If not, we'll fall back to a default.
     this.logDir = (this.orderRepository as JsonOrderRepository).getDataDir?.() || path.join(process.cwd(), 'logs');
-    this.supabase = supabase;
   }
 
   private async logToFile(message: string) {
@@ -57,7 +59,7 @@ export class OrderService implements IOrderService {
       throw new Error('Failed to fetch order');
     }
   }
-
+  
   async getOrderByStripeSessionId(sessionId: string): Promise<Order | null> {
     try {
       const dbOrder = await this.orderRepository.findByStripeSessionId(sessionId);

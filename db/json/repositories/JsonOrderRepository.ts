@@ -25,20 +25,19 @@ export class JsonOrderRepository implements IOrderRepository {
     return path.join(this.dataDir, `${id}.json`);
   }
 
-  async create(order: Omit<DBOrder, '_id' | 'created_at'>): Promise<DBOrder> {
-    const newOrder: DBOrder = {
-      _id: uuidv4(),
-      ...order,
-      created_at: new Date(),
-    };
-    await fs.writeFile(this.getFilePath(newOrder._id), JSON.stringify(newOrder, null, 2));
-    return newOrder;
+  async create(order: DBOrder): Promise<DBOrder> {
+    const id = uuidv4();
+    const orderWithId = { ...order, id };
+    const filePath = path.join(this.dataDir, `${id}.json`);
+    await fs.writeFile(filePath, JSON.stringify(orderWithId, null, 2));
+    return orderWithId;
   }
 
   async findById(id: string): Promise<DBOrder | null> {
+    const filePath = path.join(this.dataDir, `${id}.json`);
     try {
-      const data = await fs.readFile(this.getFilePath(id), 'utf-8');
-      return JSON.parse(data) as DBOrder;
+      const data = await fs.readFile(filePath, 'utf-8');
+      return JSON.parse(data);
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         return null;
@@ -103,5 +102,22 @@ export class JsonOrderRepository implements IOrderRepository {
       orders.push(JSON.parse(data) as DBOrder);
     }
     return orders.sort((a, b) => b.created_at.getTime() - a.created_at.getTime());
+  }
+
+  async findByUserId(userId: string): Promise<DBOrder[]> {
+    const files = await fs.readdir(this.dataDir);
+    const orders: DBOrder[] = [];
+
+    for (const file of files) {
+      const filePath = path.join(this.dataDir, file);
+      const data = await fs.readFile(filePath, 'utf-8');
+      const order: DBOrder = JSON.parse(data);
+
+      if (order.userid === userId) {
+        orders.push(order);
+      }
+    }
+
+    return orders;
   }
 }

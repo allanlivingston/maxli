@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
 import { OrderService } from '../../services/OrderService';
 import { Order, OrderItem, OrderStatus } from '../../types/Order';
-import { getOrCreateGuestId } from '../../utils/guestId';
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -15,11 +14,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       console.log('Received checkout request:', req.body);
 
-      const { items, deliveryMethod, shippingCost } = req.body;
-      const guestId = getOrCreateGuestId(req, res);  // Pass both req and res
-
+      const { items, deliveryMethod, shippingCost, guestId } = req.body;
+      
       if (!guestId) {
-        return res.status(400).json({ error: 'guestId is required' });
+        return res.status(400).json({ error: 'Guest ID is required' });
       }
 
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item: OrderItem) => ({
@@ -69,6 +67,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
         ];
+      }
+
+      // Add a null check before using stripe
+      if (!stripe) {
+        return res.status(500).json({ error: 'Stripe is not initialized' });
       }
 
       const session = await stripe.checkout.sessions.create(sessionOptions);

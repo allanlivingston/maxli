@@ -1,4 +1,5 @@
 import { IOrderRepository } from '../db/interfaces/IOrderRepository';
+import { createClient } from '@supabase/supabase-js';
 //import { MongoOrderRepository } from '../db/mongodb/repositories/MongoOrderRepository';
 //import { FirebaseOrderRepository } from '../db/firebase/repositories/FirebaseOrderRepository';
 //import { MySQLOrderRepository } from '../db/mysql/repositories/MySQLOrderRepository';
@@ -17,7 +18,11 @@ export class OrderRepositoryFactory {
       case 'mysql':
         throw new Error('mysql repository not implemented');
       case 'supabase':
-        return new SupabaseOrderRepository();
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        return new SupabaseOrderRepository(supabase);
       case 'flask':
         //return new FlaskOrderRepository();
         throw new Error('Flask repository not implemented');

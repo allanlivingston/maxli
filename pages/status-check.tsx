@@ -1,6 +1,7 @@
 import { GetServerSideProps, NextPage } from 'next';
 import { createClient } from '@supabase/supabase-js';
-import { getOrCreateGuestId } from '../utils/guestId'; // Import the getOrCreateGuestId function
+import { useEffect } from 'react';
+import { useGuestId } from '../utils/guestId'; // Import the useGuestId hook
 
 interface KeyCheckProps {
   isStripeKeySet: boolean;
@@ -19,6 +20,16 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
   buildTime,
   tempUserId // Add this line
 }) => {
+  const guestId = useGuestId();
+
+  useEffect(() => {
+    if (guestId) {
+      // Do something with guestId
+      console.log('Guest ID:', guestId);
+      // You might want to use this guestId to fetch status or perform other operations
+    }
+  }, [guestId]);
+
   return (
     <div style={{ 
       display: 'flex', 
@@ -51,7 +62,7 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async ({ }) => {
   const isStripeKeySet = !!process.env.STRIPE_SECRET_KEY;
   const isSupabaseUrlSet = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
   const isSupabaseAnonKeySet = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -79,7 +90,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const buildTime = process.env.BUILD_TIME || 'Not available';
   
   // Generate or retrieve the temporary user ID
-  const tempUserId = getOrCreateGuestId(req, res);
+  const tempUserId = '1234567890';
 
   return {
     props: {

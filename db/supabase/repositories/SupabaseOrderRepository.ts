@@ -1,13 +1,19 @@
 import { IOrderRepository } from '../../interfaces/IOrderRepository';
 import { DBOrder } from '../../../types/Order';
-import { supabase } from '../../../lib/supabaseClient';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export class SupabaseOrderRepository implements IOrderRepository {
+  private supabase: SupabaseClient;
+
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase;
+  }
+
   async create(order: Omit<DBOrder, 'id' | 'created_at'>): Promise<DBOrder> {
     try {
       console.log('SupabaseOrderRepository: Attempting to create order:', JSON.stringify(order, null, 2));
 
-      const { data, error } = await supabase
+      const { data, error } = await this.supabase
         .from('orders')
         .insert([order])
         .select()
@@ -27,7 +33,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async findById(id: string): Promise<DBOrder | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('orders')
       .select('*')
       .eq('id', id)
@@ -42,7 +48,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async findByStripeSessionId(sessionId: string): Promise<DBOrder | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('orders')
       .select('*')
       .eq('stripe_session_id', sessionId)
@@ -57,7 +63,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async update(id: string, updateData: Partial<DBOrder>): Promise<DBOrder | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('orders')
       .update(updateData)
       .eq('id', id)
@@ -73,7 +79,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('orders')
       .delete()
       .eq('id', id);
@@ -87,7 +93,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async findAll(limit?: number): Promise<DBOrder[]> {
-    let query = supabase
+    let query = this.supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
@@ -110,13 +116,9 @@ export class SupabaseOrderRepository implements IOrderRepository {
     const { data, error } = await this.supabase
       .from('orders')
       .select('*')
-      .eq('userid', userId);  // Note the lowercase 'userid'
+      .eq('userid', userId);
 
-    if (error) {
-      console.error('Error fetching orders by userId:', error);
-      throw new Error('Failed to fetch orders by userId');
-    }
-
+    if (error) throw error;
     return data || [];
   }
 }

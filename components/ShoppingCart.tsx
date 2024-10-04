@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { CartItem } from "@/hooks/useCart"
 import { Minus, Plus, X, Lock, Truck, Store, ShoppingCart as CartIcon } from 'lucide-react'
 import { loadStripe } from '@stripe/stripe-js';
-import { getOrCreateGuestId } from '../utils/guestId';
+import { useGuestId } from '../utils/guestId';
 // Remove the unused import:
 // import * as RadioGroup from '@radix-ui/react-radio-group';
 
@@ -28,70 +28,72 @@ interface ShoppingCartProps {
 }
 
 export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart }: ShoppingCartProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
+  const guestId = useGuestId();
   
+  // Use guestId when it's available
+  useEffect(() => {
+    if (guestId) {
+      // Perform any operations that require guestId
+    }
+  }, [guestId]);
+
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = deliveryMethod === 'delivery' ? 100 : 0;
   const total = subtotal + shippingCost;
 
   const handleCheckout = async () => {
-    setIsLoading(true); // Set loading to true when starting checkout
-    try {
-      const guestId = getOrCreateGuestId(); // Updated to use the new function
+    if (!guestId) {
+      console.error('Guest ID not available');
+      return;
+    }
 
-      console.log("Initiating checkout with items:", items);
-      console.log("Delivery method:", deliveryMethod);
-      console.log("Shipping cost:", shippingCost);
+    console.log("Initiating checkout with items:", items);
+    console.log("Delivery method:", deliveryMethod);
+    console.log("Shipping cost:", shippingCost);
 
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items,
-          deliveryMethod,
-          shippingCost,
-          guestId, // Include the guestId in the request
-        }),
-      });
+    const response = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        items,
+        deliveryMethod,
+        shippingCost,
+        guestId, // Include the guestId in the request
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-      const checkoutSession = await response.json();
-      console.log("Checkout session response:", checkoutSession);
+    const checkoutSession = await response.json();
+    console.log("Checkout session response:", checkoutSession);
 
-      if (!checkoutSession || !checkoutSession.id) {
-        throw new Error('Invalid checkout session response');
-      }
+    if (!checkoutSession || !checkoutSession.id) {
+      throw new Error('Invalid checkout session response');
+    }
 
-      const { id: sessionId, orderId } = checkoutSession;
-      console.log("Extracted sessionId:", sessionId, "orderId:", orderId);
+    const { id: sessionId, orderId } = checkoutSession;
+    console.log("Extracted sessionId:", sessionId, "orderId:", orderId);
 
-      if (!sessionId) {
-        throw new Error('No session ID returned from server');
-      }
+    if (!sessionId) {
+      throw new Error('No session ID returned from server');
+    }
 
-      // Redirect to Stripe Checkout
-      const stripe = await getStripe();
-      if (!stripe) {
-        throw new Error('Failed to initialize Stripe');
-      }
-      const { error } = await stripe.redirectToCheckout({ sessionId });
+    // Redirect to Stripe Checkout
+    const stripe = await getStripe();
+    if (!stripe) {
+      throw new Error('Failed to initialize Stripe');
+    }
+    const { error } = await stripe.redirectToCheckout({ sessionId });
 
-      if (error) {
-        console.error('Stripe redirect error:', error);
-        throw new Error(error.message);
-      }
-    } catch (error) {
-      console.error('Error in checkout:', error);
-      // Here you might want to set an error state or show an error message to the user
-      // setCheckoutError(error.message);
-    } finally {
-      setIsLoading(false); // Set loading back to false when checkout process is complete
+    if (error) {
+      console.error('Stripe redirect error:', error);
+      throw new Error(error.message);
     }
   };
 

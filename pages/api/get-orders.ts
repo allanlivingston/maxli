@@ -1,18 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
+//import { createClient } from '@supabase/supabase-js';
 import { OrderService } from '../../services/OrderService';
 
 // Load environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+//const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+//const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+//const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+//if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceRoleKey) {
+//  throw new Error('Missing Supabase environment variables');
+//}
 
 // Use the service role key for admin operations
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+//const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log('API: Fetching orders for guestId:', guestId);
 
-      const orderService = new OrderService(supabaseAdmin);
+      const orderService = new OrderService();
       const orders = await orderService.getOrdersByUserId(guestId);
       console.log(`API: Found ${orders.length} orders for guestId:`, guestId);
       res.status(200).json(orders);
