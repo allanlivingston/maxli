@@ -38,7 +38,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
       await logToFile(`Event constructed: ${event.type}`);
-    } catch (err: unknown) { // Change 'any' to 'unknown'
+    } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       await logToFile(`Webhook Error: ${errorMessage}`);
       res.status(400).send(`Webhook Error: ${errorMessage}`);
@@ -54,8 +54,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (order) {
           await logToFile(`Order found: ${order.id}`);
           // Update order status
-          await orderService.updateOrderStatus(order.id, 'paid');
-          await logToFile(`Order status updated to paid`);
+          try {
+            await orderService.updateOrderStatus(order.id, 'paid');
+            await logToFile(`Order status updated to paid for order: ${order.id}`);
+          } catch (updateError) {
+            await logToFile(`Error updating order status: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
+          }
 
           // Update shipping address if available
           await logToFile(`Session customer details: ${JSON.stringify(session.customer_details)}`);

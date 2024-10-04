@@ -152,10 +152,12 @@ export class OrderService implements IOrderService {
       const { data, error } = await this.supabase
         .from('orders')
         .select('*')
-        .eq('userid', userid);  // Ensure this matches the column name in Supabase
+        .eq('userid', userid)
+        .order('created_at', { ascending: false });  // Sort by created_at in descending order
 
       if (error) throw error;
 
+      console.log(`OrderService: Found ${data?.length || 0} orders for user ID:`, userid);
       return data ? data.map(this.convertToOrder) : [];
     } catch (error) {
       console.error('Error fetching orders by user ID:', error);
