@@ -6,13 +6,15 @@ interface KeyCheckProps {
   isSupabaseUrlSet: boolean;
   isSupabaseAnonKeySet: boolean;
   supabaseConnectionStatus: string;
+  buildTime: string; // Add this line
 }
 
 const KeyCheck: NextPage<KeyCheckProps> = ({ 
   isStripeKeySet, 
   isSupabaseUrlSet, 
   isSupabaseAnonKeySet, 
-  supabaseConnectionStatus 
+  supabaseConnectionStatus,
+  buildTime // Add this line
 }) => {
   return (
     <div style={{ 
@@ -25,16 +27,19 @@ const KeyCheck: NextPage<KeyCheckProps> = ({
       fontFamily: 'Arial, sans-serif' 
     }}>
       <p>
-        STRIPE_SECRET_KEY is: <strong>{isStripeKeySet ? 'Set' : 'Not Set'}</strong>
+        STRIPE KEY is: <strong>{isStripeKeySet ? 'Set' : 'Not Set'}</strong>
       </p>
       <p>
-        NEXT_PUBLIC_SUPABASE_URL is: <strong>{isSupabaseUrlSet ? 'Set' : 'Not Set'}</strong>
+        SUPABASE URL is: <strong>{isSupabaseUrlSet ? 'Set' : 'Not Set'}</strong>
       </p>
       <p>
-        NEXT_PUBLIC_SUPABASE_ANON_KEY is: <strong>{isSupabaseAnonKeySet ? 'Set' : 'Not Set'}</strong>
+        SUPABASE KEY is: <strong>{isSupabaseAnonKeySet ? 'Set' : 'Not Set'}</strong>
       </p>
       <p>
         Supabase Connection: <strong>{supabaseConnectionStatus}</strong>
+      </p>
+      <p>
+        Last Build Time: <strong>{buildTime}</strong>
       </p>
     </div>
   );
@@ -71,7 +76,8 @@ export const getServerSideProps: GetServerSideProps = async () => {
       isStripeKeySet,
       isSupabaseUrlSet,
       isSupabaseAnonKeySet,
-      supabaseConnectionStatus
+      supabaseConnectionStatus,
+      buildTime: process.env.BUILD_TIME!, // Add this line
     },
   };
 };
