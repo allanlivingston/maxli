@@ -189,23 +189,42 @@ export class OrderService implements IOrderService {
   async updateOrderAfterStripeReturn(stripeSessionId: string): Promise<Order | null> {
     try {
       console.log('OrderService: Updating order after Stripe return:', stripeSessionId);
-      const order = await this.getOrderByStripeSessionId(stripeSessionId);
-      
+      const { data: order, error } = await this.supabase
+        .from('orders')
+        .select('*')
+        .eq('stripeSessionId', stripeSessionId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching order:', error);
+        throw error;
+      }
+
       if (!order) {
         console.log('OrderService: No order found for Stripe session ID:', stripeSessionId);
         return null;
       }
 
-      if (order.status === 'cart' && order.id) {
-        const updatedOrder = await this.updateOrderStatus(order.id, 'pending');
-        console.log('OrderService: Order updated to pending:', order.id);
-        return updatedOrder;
-      } else if (order.status === 'paid') {
-        console.log('OrderService: Order already paid, no update needed:', order.id);
-        return order;
+      console.log('OrderService: Found order:', JSON.stringify(order, null, 2));
+
+      if (order.status === 'cart') {
+        const { data: updatedOrder, error: updateError } = await this.supabase
+          .from('orders')
+          .update({ status: 'paid' })
+          .eq('id', order.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Error updating order status:', updateError);
+          throw updateError;
+        }
+
+        console.log('OrderService: Order updated to paid:', JSON.stringify(updatedOrder, null, 2));
+        return updatedOrder as Order;
       } else {
-        console.log('OrderService: Order in unexpected state:', order.status);
-        return order;
+        console.log('OrderService: Order already processed, status:', order.status);
+        return order as Order;
       }
     } catch (error) {
       console.error('Error updating order after Stripe return:', error);
