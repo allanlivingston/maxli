@@ -21,7 +21,7 @@ type OrderItem = {
 };
 
 export default function Orders() {
-  const [orders, setOrders] = useState<OrderType[]>([]); // Use the renamed type here
+  const [orders, setOrders] = useState<OrderType[] | null>(null); // Use the renamed type here
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const guestId = useGuestId();
@@ -38,8 +38,16 @@ export default function Orders() {
       }
 
       const data = await response.json();
-      console.log(`Orders component: Received ${data.length} orders`);
-      setOrders(data);
+      console.log('Orders component: Received data:', data);
+
+      if (Array.isArray(data)) {
+        setOrders(data);
+      } else if (typeof data === 'object' && data !== null) {
+        // If it's a single order object, wrap it in an array
+        setOrders([data]);
+      } else {
+        throw new Error('Unexpected data format received');
+      }
     } catch (err) {
       console.error('Orders component: Error fetching orders:', err);
       setError('Failed to load orders. Please try again later.');
@@ -91,14 +99,14 @@ export default function Orders() {
   };
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500">{error}</div>;
   }
 
   if (isLoading) {
-    return <div>Loading orders...</div>;
+    return <div className="text-stone-300">Loading orders...</div>;
   }
 
-  if (!Array.isArray(orders) || orders.length === 0) {
+  if (!orders || orders.length === 0) {
     return (
       <div className="text-center py-12">
         <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-600" />
@@ -109,30 +117,34 @@ export default function Orders() {
 
   return (
     <div className="space-y-8">
-      {orders.map(order => (
-        <div key={order.id} className="bg-stone-800 shadow-lg rounded-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <span className="text-emerald-500 font-semibold">Order ID: {order.id}</span>
-            <span className="text-stone-400">
-              {order.created_at 
-                ? new Date(order.created_at).toLocaleString()
-                : 'Date not available'}
-            </span>
+      {Array.isArray(orders) ? (
+        orders.map((order, index) => (
+          <div key={order.id || index} className="bg-stone-800 shadow-lg rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-emerald-500 font-semibold">Order ID: {order.id || 'N/A'}</span>
+              <span className="text-stone-400">
+                {order.created_at 
+                  ? new Date(order.created_at).toLocaleString()
+                  : 'Date not available'}
+              </span>
+            </div>
+            <div className="mb-4">
+              <span className="text-stone-300">Status: </span>
+              <span className={`font-semibold ${order.status === 'paid' ? 'text-green-500' : 'text-yellow-500'}`}>
+                {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Unknown'}
+              </span>
+            </div>
+            <div className="border-t border-stone-700 pt-4 mb-4">
+              {renderOrderItems(order.items)}
+            </div>
+            <div className="text-right text-lg font-bold text-emerald-500">
+              Total: ${(order.total || 0).toFixed(2)}
+            </div>
           </div>
-          <div className="mb-4">
-            <span className="text-stone-300">Status: </span>
-            <span className={`font-semibold ${order.status === 'paid' ? 'text-green-500' : 'text-yellow-500'}`}>
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-            </span>
-          </div>
-          <div className="border-t border-stone-700 pt-4 mb-4">
-            {renderOrderItems(order.items)}
-          </div>
-          <div className="text-right text-lg font-bold text-emerald-500">
-            Total: ${(order.total ).toFixed(2)}
-          </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <div className="text-stone-300">No orders available</div>
+      )}
     </div>
   );
 }

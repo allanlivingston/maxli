@@ -10,26 +10,14 @@ export class SupabaseOrderRepository implements IOrderRepository {
   }
 
   async create(order: Omit<DBOrder, 'id' | 'created_at'>): Promise<DBOrder> {
-    try {
-      console.log('SupabaseOrderRepository: Attempting to create order:', JSON.stringify(order, null, 2));
+    const { data, error } = await this.supabase
+      .from('orders')
+      .insert(order) // Remove the spread and id assignment
+      .select()
+      .single();
 
-      const { data, error } = await this.supabase
-        .from('orders')
-        .insert([order])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('SupabaseOrderRepository: Supabase error:', error);
-        throw error;
-      }
-
-      console.log('SupabaseOrderRepository: Order created successfully:', JSON.stringify(data, null, 2));
-      return data as DBOrder;
-    } catch (error) {
-      console.error('SupabaseOrderRepository: Error creating order:', error);
-      throw new Error('Failed to create order in repository');
-    }
+    if (error) throw error;
+    return data as DBOrder;
   }
 
   async findById(id: string): Promise<DBOrder | null> {

@@ -6,6 +6,7 @@ import { JsonOrderRepository } from '../db/json/repositories/JsonOrderRepository
 import fs from 'fs/promises';
 import path from 'path';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { generateOrderId } from '@/utils/orderIdGenerator';
 
 export class OrderService implements IOrderService {
   private orderRepository: IOrderRepository;
@@ -21,22 +22,33 @@ export class OrderService implements IOrderService {
     this.logDir = (this.orderRepository as JsonOrderRepository).getDataDir?.() || path.join(process.cwd(), 'logs');
   }
   private convertToOrder(dbOrder: DBOrder): Order {
-    const { _id, ...rest } = dbOrder;
-    return { id: _id, ...rest };
+    const { id, ...rest } = dbOrder;
+    return { id, ...rest };
   }
 
   private convertToDBOrder(order: Omit<Order, 'id' | 'created_at'>): Omit<DBOrder, '_id' | 'created_at'> {
     return order;
   }
 
-  async createOrder(order: Omit<Order, 'id'>): Promise<Order> {
+  async createOrder(order: Omit<Order, 'orderid'>): Promise<Order> {
     try {
-      console.log('OrderService: Creating order with data:', JSON.stringify(order, null, 2));
-      const createdOrder = await this.orderRepository.create(order);
-      console.log('OrderService: Order created successfully:', JSON.stringify(createdOrder, null, 2));
-      
-      // Add this line to ensure the id property is present
-      return { id: createdOrder._id, ...createdOrder };
+      const orderWithId = {
+        ...order,
+        orderid: generateOrderId(),
+        stripeSessionId: order.stripeSessionId  // Ensure this is passed from the Stripe session
+      };
+
+      console.log('OrderService: Creating order with data:', JSON.stringify(orderWithId, null, 2));
+      const { data, error } = await this.supabase
+        .from('orders')
+        .insert(orderWithId)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log('OrderService: Order created successfully:', JSON.stringify(data, null, 2));
+      return data as Order;
     } catch (error) {
       console.error('OrderService: Error creating order:', error);
       throw error;
@@ -65,8 +77,17 @@ export class OrderService implements IOrderService {
 
   async updateOrderStatus(id: string, status: OrderStatus): Promise<Order | null> {
     try {
-      const dbOrder = await this.orderRepository.update(id, { status });
-      return dbOrder ? this.convertToOrder(dbOrder) : null;
+      console.log(`Updating order status for order ID: ${id} to ${status}`);
+      const { data, error } = await this.supabase
+        .from('orders')
+        .update({ status })
+        .eq('id', id)  // Use 'id' instead of 'orderid'
+        .select()
+        .single();
+
+      if (error) throw error;
+      console.log(`Order status updated successfully: ${JSON.stringify(data)}`);
+      return data as Order;
     } catch (error) {
       console.error('Error updating order status:', error);
       throw new Error('Failed to update order status');
@@ -126,15 +147,21 @@ export class OrderService implements IOrderService {
     return requiredFields.every(field => !!address[field as keyof ShippingAddress]);
   }
 
-  async updateShippingAddress(orderId: string, shippingAddress: ShippingAddress): Promise<Order | null> {
+  async updateShippingAddress(id: string, shippingAddress: ShippingAddress): Promise<Order | null> {
     try {
-      await console.log(`Updating shipping address for order: ${orderId}`);
-      await console.log(`New shipping address: ${JSON.stringify(shippingAddress)}`);
-      const updatedOrder = await this.orderRepository.update(orderId, { shippingAddress });
-      await console.log(`Repository update result: ${JSON.stringify(updatedOrder)}`);
-      return updatedOrder ? this.convertToOrder(updatedOrder) : null;
+      console.log(`Updating shipping address for order ID: ${id}`);
+      const { data, error } = await this.supabase
+        .from('orders')
+        .update({ shippingAddress })
+        .eq('id', id)  // Use 'id' instead of 'orderid'
+        .select()
+        .single();
+
+      if (error) throw error;
+      console.log(`Shipping address updated successfully: ${JSON.stringify(data)}`);
+      return data as Order;
     } catch (error) {
-      await console.log(`Error updating shipping address: ${error}`);
+      console.error('Error updating shipping address:', error);
       throw new Error('Failed to update shipping address');
     }
   }
@@ -169,7 +196,7 @@ export class OrderService implements IOrderService {
         return null;
       }
 
-      if (order.status === 'cart') {
+      if (order.status === 'cart' && order.id) {
         const updatedOrder = await this.updateOrderStatus(order.id, 'pending');
         console.log('OrderService: Order updated to pending:', order.id);
         return updatedOrder;

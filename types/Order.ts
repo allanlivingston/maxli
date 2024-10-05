@@ -1,5 +1,5 @@
 export interface DBOrder {
-  _id: string;
+  orderid: string; // This will now be the custom generated ID
   stripeSessionId: string;
   userid: string;  // Ensure this matches the column name in Supabase
   items: OrderItem[];
@@ -7,10 +7,12 @@ export interface DBOrder {
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
   created_at: Date;
+  id?: string;
 }
 
 export interface Order {
-  id: string;
+  id?: string;  // Add this line for the primary key
+  orderid: string; // This is the human-readable ID
   stripeSessionId: string;
   userid: string;  // Ensure this matches the column name in Supabase
   items: OrderItem[];

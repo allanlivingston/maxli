@@ -85,7 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       console.log('Calculated orderTotal:', orderTotal);
 
-      const order: Omit<Order, 'id'> = {
+      const order: Omit<Order, 'orderid'> = {
         userid: guestId, // Use lowercase 'userid' to match the database column
         stripeSessionId: session.id,
         items: items, // Use the original items from the request body instead of lineItems
@@ -98,22 +98,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('Attempting to create order:', JSON.stringify(order, null, 2));
 
       try {
+        console.log('OrderService instance:', orderService);
+        console.log('Order data being sent to createOrder:', JSON.stringify(order, null, 2));
         const createdOrder = await orderService.createOrder(order);
         console.log('Order created successfully:', JSON.stringify(createdOrder, null, 2));
-        res.status(200).json({ id: session.id, orderId: createdOrder.id });
+        res.status(200).json({ id: session.id, orderId: createdOrder.orderid });
       } catch (error) {
         console.error('Error creating order:', error);
-        res.status(500).json({ error: 'Failed to create order' });
+        if (error instanceof Error) {
+          console.error('Stack trace:', error.stack);
+          res.status(500).json({ error: 'Failed to create order', details: error.message });
+        } else {
+          console.error('Unknown error occurred');
+          res.status(500).json({ error: 'Failed to create order', details: 'Unknown error' });
+        }
       }
     } catch (error) {
-      // Detailed error logging
       console.error('Detailed error in create-checkout-session:', error);
-      
-      // Send a more informative error response
-      res.status(500).json({ 
-        message: 'An error occurred during checkout',
-        error: error instanceof Error ? error.message : String(error)
-      });
+      if (error instanceof Error) {
+        console.error('Error stack:', error.stack);
+        
+        // Send a more informative error response
+        res.status(500).json({ 
+          error: 'An error occurred during checkout session creation',
+          message: error.message,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+      } else {
+        console.error('Unknown error occurred');
+        res.status(500).json({ 
+          error: 'An unknown error occurred during checkout session creation'
+        });
+      }
     }
   } else {
     res.setHeader('Allow', 'POST');

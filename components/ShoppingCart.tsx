@@ -67,6 +67,8 @@ export function ShoppingCart({ items, removeFromCart, updateQuantity, clearCart 
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 

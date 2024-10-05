@@ -48,8 +48,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           
           // Only update to 'paid' if it's not already in that state
           if (updatedOrder.status !== 'paid') {
-            await orderService.updateOrderStatus(updatedOrder.id, 'paid');
-            console.log(`Order status updated to paid for order: ${updatedOrder.id}`);
+            if (updatedOrder.id) {
+              await orderService.updateOrderStatus(updatedOrder.id, 'paid');
+              console.log(`Order status updated to paid for order: ${updatedOrder.id}`);
+            } else {
+              console.error('Order ID is undefined, cannot update status');
+            }
           }
 
           // Update shipping address if available
@@ -63,8 +67,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               postal_code: session.customer_details.address.postal_code || '',
               country: session.customer_details.address.country || '',
             };
-            await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
-            console.log(`Shipping address updated for order: ${updatedOrder.id}`);
+            if (updatedOrder.id) {
+              await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
+              console.log(`Shipping address updated for order: ${updatedOrder.id}`);
+            } else {
+              console.error('Order ID is undefined, cannot update shipping address');
+            }
           }
 
           console.log(`Order updated successfully`);
@@ -80,9 +88,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       try {
         const order = await orderService.getOrderByStripeSessionId(session.id);
-        if (order) {
+        if (order && order.id) {
           await orderService.updateOrderStatus(order.id, 'cancelled');
           console.log(`Order ${order.id} marked as cancelled due to expired session`);
+        } else if (order) {
+          console.error('Order found but ID is undefined, cannot update status');
+        } else {
+          console.log('No order found for expired session');
         }
       } catch (error) {
         console.error(`Error processing expired session: ${error instanceof Error ? error.message : 'Unknown error'}`);
