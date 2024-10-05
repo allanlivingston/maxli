@@ -22,21 +22,23 @@ interface EnhancedNorcalBatteryStoreProps {
 
 function SearchParamsWrapper({ setSuccessMessage, setActiveTab }: { setSuccessMessage: (message: string | null) => void, setActiveTab: (tab: string) => void }) {
   const searchParams = useSearchParams();
+  const { clearCart } = useCart();  // Add this line
   
   useEffect(() => {
     if (searchParams) {
       console.log('Search params:', Object.fromEntries(searchParams.entries()));
       if (searchParams.get('orderSuccess') === 'true') {
         console.log('Order success detected');
-        setSuccessMessage('Your order has been successfully placed!');
         setActiveTab("orders");
+        setSuccessMessage('Your order has been successfully placed!');
+        clearCart();  // Use clearCart here
       } else if (searchParams.get('orderError') === 'true') {
         console.log('Order error detected');
         setSuccessMessage('There was an error processing your order. Please try again.');
         alert('Error processing order.');
       }
     }
-  }, [searchParams, setSuccessMessage, setActiveTab]);
+  }, [searchParams, setSuccessMessage, setActiveTab, clearCart]);
 
   return null;
 }
