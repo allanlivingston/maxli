@@ -90,7 +90,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         stripeSessionId: session.id,
         items: items, // Use the original items from the request body instead of lineItems
         total: parseFloat(orderTotal),
-        status: 'pending' as OrderStatus,
+        status: 'cart' as OrderStatus,
         shippingAddress: undefined,
         // created_at is now optional, so we don't need to include it here
       };
