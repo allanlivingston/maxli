@@ -51,7 +51,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
     const { data, error } = await this.supabase
       .from('orders')
       .select('*')
-      .eq('stripe_session_id', sessionId)
+      .eq('stripeSessionId', sessionId)
       .single();
 
     if (error) {

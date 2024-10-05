@@ -1,6 +1,6 @@
 CREATE TABLE orders (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  stripe_session_id VARCHAR(255) UNIQUE NOT NULL,
+  stripeSessionId VARCHAR(255) UNIQUE NOT NULL,
   user_id VARCHAR(255) NOT NULL,
   total DECIMAL(10, 2) NOT NULL,
   status ENUM('pending', 'paid', 'cancelled', 'shipped', 'delivered') NOT NULL,
