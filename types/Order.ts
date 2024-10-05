@@ -39,7 +39,7 @@ export interface OrderItem {
   };
 }
 
-export type OrderStatus = 'pending' | 'paid' | 'cancelled' | 'shipped' | 'delivered';
+export type OrderStatus = 'cart' |'pending' | 'paid' | 'cancelled' | 'shipped' | 'delivered';
 
 export interface ShippingAddress {
   line1: string;

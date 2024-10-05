@@ -3,7 +3,7 @@ CREATE TABLE orders (
   stripeSessionId VARCHAR(255) UNIQUE NOT NULL,
   user_id VARCHAR(255) NOT NULL,
   total DECIMAL(10, 2) NOT NULL,
-  status ENUM('pending', 'paid', 'cancelled', 'shipped', 'delivered') NOT NULL,
+  status ENUM('cart', 'pending', 'paid', 'cancelled', 'shipped', 'delivered') NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -141,20 +141,48 @@ export class OrderService implements IOrderService {
 
   async getOrdersByUserId(userid: string): Promise<Order[]> {
     try {
-      console.log('OrderService: Getting orders by user ID:', userid);
+      console.log('OrderService: Getting non-cart orders by user ID:', userid);
       const { data, error } = await this.supabase
         .from('orders')
         .select('*')
         .eq('userid', userid)
-        .order('created_at', { ascending: false });  // Sort by created_at in descending order
+        .neq('status', 'cart')  // Exclude orders with 'cart' status
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      console.log(`OrderService: Found ${data?.length || 0} orders for user ID:`, userid);
+      console.log(`OrderService: Found ${data?.length || 0} non-cart orders for user ID:`, userid);
       return data ? data.map(this.convertToOrder) : [];
     } catch (error) {
-      console.error('Error fetching orders by user ID:', error);
-      throw new Error('Failed to fetch orders by user ID');
+      console.error('Error fetching non-cart orders by user ID:', error);
+      throw new Error('Failed to fetch non-cart orders by user ID');
+    }
+  }
+
+  async updateOrderAfterStripeReturn(stripeSessionId: string): Promise<Order | null> {
+    try {
+      console.log('OrderService: Updating order after Stripe return:', stripeSessionId);
+      const order = await this.getOrderByStripeSessionId(stripeSessionId);
+      
+      if (!order) {
+        console.log('OrderService: No order found for Stripe session ID:', stripeSessionId);
+        return null;
+      }
+
+      if (order.status === 'cart') {
+        const updatedOrder = await this.updateOrderStatus(order.id, 'pending');
+        console.log('OrderService: Order updated to pending:', order.id);
+        return updatedOrder;
+      } else if (order.status === 'paid') {
+        console.log('OrderService: Order already paid, no update needed:', order.id);
+        return order;
+      } else {
+        console.log('OrderService: Order in unexpected state:', order.status);
+        return order;
+      }
+    } catch (error) {
+      console.error('Error updating order after Stripe return:', error);
+      throw new Error('Failed to update order after Stripe return');
     }
   }
 

@@ -42,15 +42,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log(`Checkout completed: ${session.id}`);
 
       try {
-        const order = await orderService.getOrderByStripeSessionId(session.id);
-        if (order) {
-          console.log(`Order found: ${order.id}`);
-          // Update order status
-          try {
-            await orderService.updateOrderStatus(order.id, 'paid');
-            console.log(`Order status updated to paid for order: ${order.id}`);
-          } catch (updateError) {
-            console.error(`Error updating order status: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
+        const updatedOrder = await orderService.updateOrderAfterStripeReturn(session.id);
+        if (updatedOrder) {
+          console.log(`Order ${updatedOrder.id} updated after Stripe return`);
+          
+          // Only update to 'paid' if it's not already in that state
+          if (updatedOrder.status !== 'paid') {
+            await orderService.updateOrderStatus(updatedOrder.id, 'paid');
+            console.log(`Order status updated to paid for order: ${updatedOrder.id}`);
           }
 
           // Update shipping address if available
@@ -64,15 +63,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               postal_code: session.customer_details.address.postal_code || '',
               country: session.customer_details.address.country || '',
             };
-            await orderService.updateShippingAddress(order.id, shippingAddress);
-            console.log(`Shipping address updated for order: ${order.id}`);
-          } else {
-            console.log(`No shipping information for order: ${order.id}`);
+            await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
+            console.log(`Shipping address updated for order: ${updatedOrder.id}`);
           }
 
-          console.log(`Order ${order.id} updated successfully`);
+          console.log(`Order updated successfully`);
         } else {
-          console.log(`Order not found for session: ${session.id}`);
+          console.log(`No order found for session`);
         }
       } catch (error) {
         console.error(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
