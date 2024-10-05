@@ -23,6 +23,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const buf = await buffer(req);
     const sig = req.headers['stripe-signature']!;
 
+    console.log('Webhook signature:', sig);
+
     let event: Stripe.Event;
 
     try {
@@ -35,28 +37,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return;
     }
 
-    console.log(`Webhook Event type: ${event.type}, ${event.data.object}`);
+    console.log(`Webhook Event type: ${event.type}`);
+    console.log(`Webhook Event data:`, JSON.stringify(event.data.object, null, 2));
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(`Checkout completed: ${session.id}`);
 
       try {
+        console.log('Updating order after Stripe return...');
         const updatedOrder = await orderService.updateOrderAfterStripeReturn(session.id);
+        console.log('Updated order:', updatedOrder);
+
         if (updatedOrder) {
           console.log(`Order ${updatedOrder.id} updated after Stripe return`);
           
-          // Only update to 'paid' if it's not already in that state
           if (updatedOrder.status !== 'paid') {
             if (updatedOrder.id) {
-              await orderService.updateOrderStatus(updatedOrder.id, 'paid');
-              console.log(`Order status updated to paid for order: ${updatedOrder.id}`);
+              console.log(`Updating order status to paid for order: ${updatedOrder.id}`);
+              const statusUpdateResult = await orderService.updateOrderStatus(updatedOrder.id, 'paid');
+              console.log('Status update result:', statusUpdateResult);
             } else {
               console.error('Order ID is undefined, cannot update status');
             }
+          } else {
+            console.log(`Order ${updatedOrder.id} is already in paid status`);
           }
 
-          // Update shipping address if available
           console.log(`Session customer details: ${JSON.stringify(session.customer_details)}`);
           if (session.customer_details?.address) {
             const shippingAddress = {
@@ -68,19 +75,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               country: session.customer_details.address.country || '',
             };
             if (updatedOrder.id) {
-              await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
-              console.log(`Shipping address updated for order: ${updatedOrder.id}`);
+              console.log(`Updating shipping address for order: ${updatedOrder.id}`);
+              const addressUpdateResult = await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
+              console.log('Address update result:', addressUpdateResult);
             } else {
               console.error('Order ID is undefined, cannot update shipping address');
             }
           }
 
-          console.log(`Order updated successfully`);
+          console.log(`Order processing completed`);
         } else {
-          console.log(`No order found for session`);
+          console.log(`No order found for session ${session.id}`);
         }
       } catch (error) {
         console.error(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace available');
       }
     } else if (event.type === 'checkout.session.expired') {
       const session = event.data.object as Stripe.Checkout.Session;
