@@ -20,13 +20,6 @@ export class OrderService implements IOrderService {
     this.orderRepository = OrderRepositoryFactory.getRepository();
     this.logDir = (this.orderRepository as JsonOrderRepository).getDataDir?.() || path.join(process.cwd(), 'logs');
   }
-
-  private async logToFile(message: string) {
-    const logPath = path.join(this.logDir, 'order-service-logs.txt');
-    await fs.appendFile(logPath, `${new Date().toISOString()}: ${message}\n`);
-    console.log('Logged to file:', logPath);
-  }
-
   private convertToOrder(dbOrder: DBOrder): Order {
     const { _id, ...rest } = dbOrder;
     return { id: _id, ...rest };
@@ -135,13 +128,13 @@ export class OrderService implements IOrderService {
 
   async updateShippingAddress(orderId: string, shippingAddress: ShippingAddress): Promise<Order | null> {
     try {
-      await this.logToFile(`Updating shipping address for order: ${orderId}`);
-      await this.logToFile(`New shipping address: ${JSON.stringify(shippingAddress)}`);
+      await console.log(`Updating shipping address for order: ${orderId}`);
+      await console.log(`New shipping address: ${JSON.stringify(shippingAddress)}`);
       const updatedOrder = await this.orderRepository.update(orderId, { shippingAddress });
-      await this.logToFile(`Repository update result: ${JSON.stringify(updatedOrder)}`);
+      await console.log(`Repository update result: ${JSON.stringify(updatedOrder)}`);
       return updatedOrder ? this.convertToOrder(updatedOrder) : null;
     } catch (error) {
-      await this.logToFile(`Error updating shipping address: ${error}`);
+      await console.log(`Error updating shipping address: ${error}`);
       throw new Error('Failed to update shipping address');
     }
   }
