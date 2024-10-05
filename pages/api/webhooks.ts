@@ -77,6 +77,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch (error) {
         console.error(`Error processing order: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
+    } else if (event.type === 'checkout.session.expired') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.log(`Checkout session expired: ${session.id}`);
+
+      try {
+        const order = await orderService.getOrderByStripeSessionId(session.id);
+        if (order) {
+          await orderService.updateOrderStatus(order.id, 'cancelled');
+          console.log(`Order ${order.id} marked as cancelled due to expired session`);
+        }
+      } catch (error) {
+        console.error(`Error processing expired session: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
     }
 
     res.json({ received: true });
