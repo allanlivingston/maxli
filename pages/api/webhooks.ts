@@ -31,9 +31,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
       console.log(`Event constructed: ${event.type}`);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.error(`Webhook Error: ${errorMessage}`);
-      res.status(400).send(`Webhook Error: ${errorMessage}`);
+      console.error(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      res.status(400).send(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
       return;
     }
 
@@ -47,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         console.log('Updating order after Stripe return...');
         const updatedOrder = await orderService.updateOrderAfterStripeReturn(session.id);
-        console.log('Updated order:', updatedOrder);
+        console.log('Updated order:', JSON.stringify(updatedOrder, null, 2));
 
         if (updatedOrder) {
           console.log(`Order ${updatedOrder.id} updated after Stripe return`);
@@ -56,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (updatedOrder.id) {
               console.log(`Updating order status to paid for order: ${updatedOrder.id}`);
               const statusUpdateResult = await orderService.updateOrderStatus(updatedOrder.id, 'paid');
-              console.log('Status update result:', statusUpdateResult);
+              console.log('Status update result:', JSON.stringify(statusUpdateResult, null, 2));
             } else {
               console.error('Order ID is undefined, cannot update status');
             }
