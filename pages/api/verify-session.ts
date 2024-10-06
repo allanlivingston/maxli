@@ -1,29 +1,27 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import Stripe from 'stripe'
 import { OrderService } from '@/services/OrderService';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     const { session_id } = req.query;
 
+    if (!session_id) {
+      res.status(400).json({ error: 'Missing session_id parameter' });
+      return;
+    }
+
     try {
-      // First, retrieve the session from Stripe
-      const session = await stripe.checkout.sessions.retrieve(session_id as string);
-      console.log('Session retrieved from Stripe:', session);
-
-      // Then, use the session ID to look up the order in our database
-      const order = await orderService.getOrderByStripeSessionId(session.id);
-      console.log('Order retrieved from database:', order);
-
+      const order = await orderService.getOrderByStripeSessionId(session_id as string);
+      
       if (!order) {
-        throw new Error('Order not found in database');
+        console.log('No order found for session ID:', session_id);
+        res.status(404).json({ verified: false, error: 'Order not found' });
+        return;
       }
 
-      // If the order is found, send it back to the client
-      res.status(200).json({ verified: true, order })
+      res.status(200).json({ verified: true, order });
     } catch (error) {
       console.error('Error verifying session:', error);
       res.status(500).json({ 

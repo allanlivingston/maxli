@@ -67,8 +67,24 @@ export class OrderService implements IOrderService {
   
   async getOrderByStripeSessionId(sessionId: string): Promise<Order | null> {
     try {
-      const dbOrder = await this.orderRepository.findByStripeSessionId(sessionId);
-      return dbOrder ? this.convertToOrder(dbOrder) : null;
+      console.log('OrderService: Getting order by Stripe session ID:', sessionId);
+      const { data, error } = await this.supabase
+        .from('orders')
+        .select('*')
+        .eq('stripeSessionId', sessionId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('No order found for session ID:', sessionId);
+          return null;
+        }
+        console.error('Error fetching order by Stripe session ID:', error);
+        throw error;
+      }
+
+      console.log('OrderService: Order found:', JSON.stringify(data, null, 2));
+      return data as Order;
     } catch (error) {
       console.error('Error fetching order by Stripe session ID:', error);
       throw new Error('Failed to fetch order by Stripe session ID');
