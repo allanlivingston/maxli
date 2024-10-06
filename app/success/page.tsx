@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Battery, CheckCircle, XCircle, ChevronLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
@@ -11,7 +11,21 @@ export default function SuccessPage() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [order, setOrder] = useState<Order | null>(null);
   const [readyDate, setReadyDate] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>(''); // Add this line
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const checkOrderStatus = useCallback(async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/check-order-status?session_id=${sessionId}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.order;
+    } catch (error) {
+      console.error('Error checking order status:', error);
+      return null;
+    }
+  }, []);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,6 +55,25 @@ export default function SuccessPage() {
                 month: 'long',
                 day: 'numeric'
               }));
+
+              let tryCount = 0;
+              const maxTries = 60;
+
+              // Start checking order status every second
+              const intervalId = setInterval(async () => {
+                tryCount++;
+                const updatedOrder = await checkOrderStatus(session_id);
+                if (updatedOrder) {
+                  setOrder(updatedOrder);
+                  if (updatedOrder.status === 'paid' || tryCount >= maxTries) {
+                    clearInterval(intervalId);
+                    console.log(`Stopped checking order status. Reason: ${updatedOrder.status === 'paid' ? 'Order paid' : 'Max tries reached'}`);
+                  }
+                }
+              }, 1000);
+
+              // Clear interval on component unmount
+              return () => clearInterval(intervalId);
             } else {
               throw new Error('Order data is missing');
             }
@@ -51,13 +84,13 @@ export default function SuccessPage() {
         .catch(error => {
           console.error('Verification error:', error);
           setStatus('error');
-          setErrorMessage(error.message || 'An error occurred while verifying the order'); // Change this line
+          setErrorMessage(error.message || 'An error occurred while verifying the order');
         });
     } else {
       setStatus('error');
-      setErrorMessage('No session ID provided'); // Change this line
+      setErrorMessage('No session ID provided');
     }
-  }, []);
+  }, [checkOrderStatus]);
 
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -149,7 +182,7 @@ export default function SuccessPage() {
             <>
               <XCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
               <h1 className="text-2xl font-bold mb-4 text-red-300 text-center">Order Verification Failed</h1>
-              <p className="text-stone-300 mb-6 text-center">{errorMessage}</p> {/* Change this line */}
+              <p className="text-stone-300 mb-6 text-center">{errorMessage}</p>
               <Link href="/" passHref>
                 <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
                   Return to Home
