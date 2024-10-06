@@ -94,7 +94,7 @@ export class OrderService implements IOrderService {
 
   async updateOrderStatus(privateid: string, status: OrderStatus): Promise<Order | null> {
     try {
-      console.log(`Updating order status for order ID: ${privateid} to ${status}`);
+      console.log(`************ Updating order status for order ID: ${privateid} to ${status}`);
       const { data, error } = await this.supabase
         .from('orders')
         .update({ status })
@@ -228,7 +228,7 @@ export class OrderService implements IOrderService {
         const { data: updatedOrder, error: updateError } = await this.supabase
           .from('orders')
           .update({ status: 'paid' })
-          .eq('id', order.id)
+          .eq('privateid', order.privateid  )
           .select()
           .single();
 
