@@ -23,8 +23,10 @@ export class OrderService implements IOrderService {
   }
   
   private convertToOrder(dbOrder: DBOrder): Order {
-    // No need to destructure, as the structures are now identical
-    return dbOrder;
+    return {
+      ...dbOrder,
+      shippingCost: (dbOrder as any).shippingCost || 0, // Add shippingCost if it's missing
+    };
   }
 
   private convertToDBOrder(order: Omit<Order, 'privateid' | 'created_at'>): Omit<DBOrder, 'privateid' | 'created_at'> {
@@ -32,28 +34,25 @@ export class OrderService implements IOrderService {
   }
 
   async createOrder(order: Omit<Order, 'privateid' | 'orderid' | 'created_at'>): Promise<Order> {
-    try {
-      const orderWithIds = {
-        ...order,
-        orderid: generateOrderId(),
-        stripeSessionId: order.stripeSessionId
-      };
+    const orderid = generateOrderId(); // Generate a unique order ID
 
-      console.log('OrderService: Creating order with data:', JSON.stringify(orderWithIds, null, 2));
-      const { data, error } = await this.supabase
-        .from('orders')
-        .insert(orderWithIds)
-        .select()
-        .single();
+    const { data, error } = await this.supabase
+      .from('orders')
+      .insert({
+        orderid, // Add this line to include the generated order ID
+        userid: order.userid,
+        stripeSessionId: order.stripeSessionId,
+        items: order.items,
+        total: order.total,
+        status: order.status,
+        shippingAddress: order.shippingAddress,
+        shippingCost: order.shippingCost, // Add this line
+      })
+      .select()
+      .single();
 
-      if (error) throw error;
-
-      console.log('OrderService: Order created successfully:', JSON.stringify(data, null, 2));
-      return data as Order;
-    } catch (error) {
-      console.error('OrderService: Error creating order:', error);
-      throw error;
-    }
+    if (error) throw error;
+    return data;
   }
 
   async getOrderById(privateid: string): Promise<Order | null> {

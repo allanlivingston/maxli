@@ -31,18 +31,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         quantity: item.quantity,
       }));
 
-      if (shippingCost > 0) {
-        lineItems.push({
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Shipping',
-            },
-            unit_amount: shippingCost * 100, // Convert to cents
-          },
-          quantity: 1,
-        });
-      }
+      // Remove this block to prevent adding shipping as a line item
+      // if (shippingCost > 0) {
+      //   lineItems.push({
+      //     price_data: {
+      //       currency: 'usd',
+      //       product_data: {
+      //         name: 'Shipping',
+      //       },
+      //       unit_amount: shippingCost * 100, // Convert to cents
+      //     },
+      //     quantity: 1,
+      //   });
+      // }
 
       const sessionOptions: Stripe.Checkout.SessionCreateParams = {
         payment_method_types: ['card'],
@@ -80,15 +81,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Ensure we're correctly accessing the amount_total
       const orderTotal = items.reduce((total: number, item: OrderItem) => total + (Number(item.price) * Number(item.quantity)), 0);
-      console.log('Calculated orderTotal:', orderTotal);
+      const totalWithShipping = deliveryMethod === 'delivery' ? orderTotal + shippingCost : orderTotal;
+
+      console.log('Calculated orderTotal (including shipping if applicable):', totalWithShipping);
 
       const order: Omit<Order, 'privateid' | 'orderid' | 'created_at'> = {
         userid: guestId, // Use lowercase 'userid' to match the database column
         stripeSessionId: session.id,
         items: items, // Use the original items from the request body instead of lineItems
-        total: orderTotal, // This should now definitely be a number
+        total: totalWithShipping, // Use the total that includes shipping
         status: 'cart' as OrderStatus,
         shippingAddress: undefined, // or provide a default value if needed
+        shippingCost: deliveryMethod === 'delivery' ? shippingCost : 0, // Add shipping cost to the order
       };
 
       console.log('Attempting to create order:', JSON.stringify(order, null, 2));

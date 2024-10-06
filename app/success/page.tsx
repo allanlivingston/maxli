@@ -7,6 +7,14 @@ import { Spinner } from "@/components/ui/spinner";
 import Link from 'next/link';
 import { Order } from '@/types/Order';
 
+type ShippingAddress = string | {
+  line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+};
+
 export default function SuccessPage() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
   const [order, setOrder] = useState<Order | null>(null);
@@ -100,6 +108,12 @@ export default function SuccessPage() {
     });
   };
 
+  const formatShippingAddress = (address: ShippingAddress | null): string => {
+    if (!address) return 'No shipping address provided';
+    if (typeof address === 'string') return address;
+    return `${address.line1}, ${address.city}, ${address.state} ${address.postal_code}, ${address.country}`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-stone-900 text-white">
       <header className="bg-stone-800 border-b border-stone-700 py-4">
@@ -129,6 +143,15 @@ export default function SuccessPage() {
                 <p className="text-stone-300">Order ID: {order.orderid}</p>
                 <p className="text-stone-300">Date: {order.created_at ? formatDate(order.created_at) : 'N/A'}</p>
                 <p className="text-stone-300">Status: {order.status}</p>
+                
+                {/* Add Shipping Address section only if there's a shipping cost and address */}
+                {order.shippingCost > 0 && order.shippingAddress && (
+                  <div className="mt-4">
+                    <h3 className="font-semibold mb-2 text-emerald-300">Shipping Address:</h3>
+                    <p className="text-stone-300">{formatShippingAddress(order.shippingAddress)}</p>
+                  </div>
+                )}
+                
                 <div className="mt-4">
                   <h3 className="font-semibold mb-2 text-emerald-300">Items:</h3>
                   {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
@@ -142,6 +165,12 @@ export default function SuccessPage() {
                     <p className="text-stone-300">No items found in this order.</p>
                   )}
                 </div>
+                {order.shippingCost > 0 && (
+                  <div className="mt-2 flex justify-between text-stone-300">
+                    <span>Shipping</span>
+                    <span>${order.shippingCost.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="mt-4 text-right font-bold text-emerald-300">
                   Total: ${(order.total).toFixed(2)}
                 </div>

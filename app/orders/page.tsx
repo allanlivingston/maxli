@@ -148,9 +148,15 @@ export default function OrdersPage() {
                     {order.items.map((item, index) => (
                       <div key={index} className="flex justify-between text-stone-300 mb-2">
                         <span>{item.name} x{item.quantity}</span>
-                        <span>${(item.price ).toFixed(2)}</span>
+                        <span>${(item.price).toFixed(2)}</span>
                       </div>
                     ))}
+                    {order.shippingCost > 0 && (
+                      <div className="flex justify-between text-stone-300 mb-2">
+                        <span>Shipping</span>
+                        <span>${order.shippingCost.toFixed(2)}</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="text-lg font-bold text-emerald-500">

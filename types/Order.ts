@@ -6,8 +6,9 @@ export interface DBOrder {
   items: OrderItem[];
   total: number;
   status: OrderStatus;
-  shippingAddress?: ShippingAddress;
+  shippingAddress?: string;
   created_at: Date;
+  shippingCost: number; // Add this line
 }
 
 export interface Order {
@@ -18,9 +19,10 @@ export interface Order {
   items: OrderItem[];
   total: number;
   status: OrderStatus;
-  shippingAddress?: ShippingAddress;
+  shippingAddress?: string;
   created_at?: Date; // Changed from create_at to created_at
   stripeReceiptUrl?: string; // Add this new property
+  shippingCost: number; // Add this line
 }
 
 export interface OrderItem {
