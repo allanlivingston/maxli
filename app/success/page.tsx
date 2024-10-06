@@ -5,30 +5,7 @@ import { Battery, CheckCircle, XCircle, ChevronLeft } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import Link from 'next/link';
-
-interface OrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface ShippingInfo {
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-}
-
-interface Order {
-  orderid: string;
-  stripeSessionId: string;
-  total: number;
-  date: string;
-  status: string;
-  items: OrderItem[];
-  shippingInfo: ShippingInfo;
-}
+import { Order } from '@/types/Order';
 
 export default function SuccessPage() {
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
@@ -82,8 +59,8 @@ export default function SuccessPage() {
     }
   }, []);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (date: Date | string) => {
+    return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -117,7 +94,7 @@ export default function SuccessPage() {
               <div className="bg-stone-700 p-4 rounded-lg mb-6">
                 <h2 className="text-xl font-semibold mb-2 text-emerald-300">Order Details</h2>
                 <p className="text-stone-300">Order ID: {order.orderid}</p>
-                <p className="text-stone-300">Date: {formatDate(order.date)}</p>
+                <p className="text-stone-300">Date: {order.created_at ? formatDate(order.created_at) : 'N/A'}</p>
                 <p className="text-stone-300">Status: {order.status}</p>
                 <div className="mt-4">
                   <h3 className="font-semibold mb-2 text-emerald-300">Items:</h3>

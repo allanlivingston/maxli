@@ -19,7 +19,7 @@ export interface Order {
   total: number;
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
-  created_at?: Date;
+  created_at?: Date; // Changed from create_at to created_at
 }
 
 export interface OrderItem {
