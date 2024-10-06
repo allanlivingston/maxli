@@ -21,27 +21,28 @@ export class OrderService implements IOrderService {
     this.orderRepository = OrderRepositoryFactory.getRepository();
     this.logDir = (this.orderRepository as JsonOrderRepository).getDataDir?.() || path.join(process.cwd(), 'logs');
   }
+  
   private convertToOrder(dbOrder: DBOrder): Order {
-    const { id, ...rest } = dbOrder;
-    return { id, ...rest };
+    // No need to destructure, as the structures are now identical
+    return dbOrder;
   }
 
-  private convertToDBOrder(order: Omit<Order, 'id' | 'created_at'>): Omit<DBOrder, '_id' | 'created_at'> {
+  private convertToDBOrder(order: Omit<Order, 'id' | 'created_at'>): Omit<DBOrder, 'created_at' | 'privateid'> {
     return order;
   }
 
-  async createOrder(order: Omit<Order, 'orderid'>): Promise<Order> {
+  async createOrder(order: Omit<Order, 'privateid' | 'orderid' | 'created_at'>): Promise<Order> {
     try {
-      const orderWithId = {
+      const orderWithIds = {
         ...order,
         orderid: generateOrderId(),
-        stripeSessionId: order.stripeSessionId  // Ensure this is passed from the Stripe session
+        stripeSessionId: order.stripeSessionId
       };
 
-      console.log('OrderService: Creating order with data:', JSON.stringify(orderWithId, null, 2));
+      console.log('OrderService: Creating order with data:', JSON.stringify(orderWithIds, null, 2));
       const { data, error } = await this.supabase
         .from('orders')
-        .insert(orderWithId)
+        .insert(orderWithIds)
         .select()
         .single();
 
@@ -55,9 +56,9 @@ export class OrderService implements IOrderService {
     }
   }
 
-  async getOrderById(id: string): Promise<Order | null> {
+  async getOrderById(privateid: string): Promise<Order | null> {
     try {
-      const dbOrder = await this.orderRepository.findById(id);
+      const dbOrder = await this.orderRepository.findById(privateid);
       return dbOrder ? this.convertToOrder(dbOrder) : null;
     } catch (error) {
       console.error('Error fetching order:', error);
@@ -91,13 +92,13 @@ export class OrderService implements IOrderService {
     }
   }
 
-  async updateOrderStatus(id: string, status: OrderStatus): Promise<Order | null> {
+  async updateOrderStatus(privateid: string, status: OrderStatus): Promise<Order | null> {
     try {
-      console.log(`Updating order status for order ID: ${id} to ${status}`);
+      console.log(`Updating order status for order ID: ${privateid} to ${status}`);
       const { data, error } = await this.supabase
         .from('orders')
         .update({ status })
-        .eq('id', id)  // Use 'id' instead of 'orderid'
+        .eq('privateid', privateid)
         .select()
         .single();
 
@@ -163,13 +164,13 @@ export class OrderService implements IOrderService {
     return requiredFields.every(field => !!address[field as keyof ShippingAddress]);
   }
 
-  async updateShippingAddress(id: string, shippingAddress: ShippingAddress): Promise<Order | null> {
+  async updateShippingAddress(orderId: string, shippingAddress: ShippingAddress): Promise<Order | null> {
     try {
-      console.log(`Updating shipping address for order ID: ${id}`);
+      console.log(`Updating shipping address for order ID: ${orderId}`);
       const { data, error } = await this.supabase
         .from('orders')
         .update({ shippingAddress })
-        .eq('id', id)  // Use 'id' instead of 'orderid'
+        .eq('privateid', orderId)  // Change to 'privateid'
         .select()
         .single();
 

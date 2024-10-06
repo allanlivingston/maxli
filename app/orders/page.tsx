@@ -129,7 +129,7 @@ export default function OrdersPage() {
               </div>
             ) : (
               orders?.map((order, index) => (
-                <div key={order.id || index} className="bg-stone-800 shadow-lg rounded-lg p-6">
+                <div key={order.privateid || index} className="bg-stone-800 shadow-lg rounded-lg p-6">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-emerald-500 font-semibold">Order ID: {order.orderid}</span>
                     <span className="text-stone-400">

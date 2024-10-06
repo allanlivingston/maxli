@@ -119,9 +119,9 @@ export default function Orders() {
     <div className="space-y-8">
       {Array.isArray(orders) ? (
         orders.map((order, index) => (
-          <div key={order.id || index} className="bg-stone-800 shadow-lg rounded-lg p-6">
+          <div key={order.privateid || index} className="bg-stone-800 shadow-lg rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
-              <span className="text-emerald-500 font-semibold">Order ID: {order.id || 'N/A'}</span>
+              <span className="text-emerald-500 font-semibold">Order ID: {order.orderid || 'N/A'}</span>
               <span className="text-stone-400">
                 {order.created_at 
                   ? new Date(order.created_at).toLocaleString()

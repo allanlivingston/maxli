@@ -79,20 +79,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.log('Stripe session created:', JSON.stringify(session, null, 2));
 
       // Ensure we're correctly accessing the amount_total
-      const orderTotal = session.amount_total 
-        ? (session.amount_total / 100).toFixed(2) 
-        : '0.00';
-
+      const orderTotal = items.reduce((total: number, item: OrderItem) => total + (Number(item.price) * Number(item.quantity)), 0);
       console.log('Calculated orderTotal:', orderTotal);
 
-      const order: Omit<Order, 'orderid'> = {
+      const order: Omit<Order, 'privateid' | 'orderid' | 'created_at'> = {
         userid: guestId, // Use lowercase 'userid' to match the database column
         stripeSessionId: session.id,
         items: items, // Use the original items from the request body instead of lineItems
-        total: parseFloat(orderTotal),
+        total: orderTotal, // This should now definitely be a number
         status: 'cart' as OrderStatus,
-        shippingAddress: undefined,
-        // created_at is now optional, so we don't need to include it here
+        shippingAddress: undefined, // or provide a default value if needed
       };
 
       console.log('Attempting to create order:', JSON.stringify(order, null, 2));

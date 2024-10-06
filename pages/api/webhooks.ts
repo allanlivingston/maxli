@@ -49,18 +49,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log('Updated order:', JSON.stringify(updatedOrder, null, 2));
 
         if (updatedOrder) {
-          console.log(`Order ${updatedOrder.id} updated after Stripe return`);
+          console.log(`Order ${updatedOrder.privateid} updated after Stripe return`);
           
           if (updatedOrder.status !== 'paid') {
-            if (updatedOrder.id) {
-              console.log(`Updating order status to paid for order: ${updatedOrder.id}`);
-              const statusUpdateResult = await orderService.updateOrderStatus(updatedOrder.id, 'paid');
+            if (updatedOrder.privateid) {
+              console.log(`Updating order status to paid for order: ${updatedOrder.privateid}`);
+              const statusUpdateResult = await orderService.updateOrderStatus(updatedOrder.privateid, 'paid');
               console.log('Status update result:', JSON.stringify(statusUpdateResult, null, 2));
             } else {
               console.error('Order ID is undefined, cannot update status');
             }
           } else {
-            console.log(`Order ${updatedOrder.id} is already in paid status`);
+            console.log(`Order ${updatedOrder.privateid} is already in paid status`);
           }
 
           console.log(`Session customer details: ${JSON.stringify(session.customer_details)}`);
@@ -73,9 +73,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               postal_code: session.customer_details.address.postal_code || '',
               country: session.customer_details.address.country || '',
             };
-            if (updatedOrder.id) {
-              console.log(`Updating shipping address for order: ${updatedOrder.id}`);
-              const addressUpdateResult = await orderService.updateShippingAddress(updatedOrder.id, shippingAddress);
+            if (updatedOrder.privateid) {
+              console.log(`Updating shipping address for order: ${updatedOrder.privateid}`);
+              const addressUpdateResult = await orderService.updateShippingAddress(updatedOrder.privateid, shippingAddress);
               console.log('Address update result:', addressUpdateResult);
             } else {
               console.error('Order ID is undefined, cannot update shipping address');
@@ -96,9 +96,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       try {
         const order = await orderService.getOrderByStripeSessionId(session.id);
-        if (order && order.id) {
-          await orderService.updateOrderStatus(order.id, 'cancelled');
-          console.log(`Order ${order.id} marked as cancelled due to expired session`);
+        if (order && order.privateid) {
+          await orderService.updateOrderStatus(order.privateid, 'cancelled');
+          console.log(`Order ${order.privateid} marked as cancelled due to expired session`);
         } else if (order) {
           console.error('Order found but ID is undefined, cannot update status');
         } else {
