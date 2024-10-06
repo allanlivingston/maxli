@@ -13,6 +13,8 @@ import { ebikeBatteries, surfboardBatteries, BatteryProduct } from '@/lib/produc
 import { MiniCart } from '@/components/MiniCart';
 import Orders from '@/components/Orders'  // Import the Orders component
 import { useSearchParams } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js'
+import { toast } from 'react-hot-toast'
 
 // Add this interface at the top of the file
 interface EnhancedNorcalBatteryStoreProps {
@@ -51,6 +53,43 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
   const cartRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [email, setEmail] = useState('')
+  const [isSubscribed, setIsSubscribed] = useState(false)
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  const isValidEmail = (email: string) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    return re.test(String(email).toLowerCase())
+  }
+
+  const handleStayConnected = async () => {
+    if (!isValidEmail(email)) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    try {
+      const { error } = await supabase  // Remove 'data' from destructuring
+        .from('stayintouch')
+        .insert([{ email }])
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      setIsSubscribed(true);
+      setEmail('');
+      toast.success('Thank you for subscribing!');
+    } catch (error) {
+      console.error('Error saving email:', error);
+      toast.error('An error occurred. Please try again.');
+    }
+  };
 
   const handleCartEnter = () => {
     if (timeoutRef.current) {
@@ -303,12 +342,13 @@ Type error: Type '{ onLogoClick: () => void; }' is not assignable to type 'Intri
             <h2 className="text-2xl md:text-3xl font-bold text-emerald-300" style={{ fontFamily: 'Helvetica Neue, sans-serif' }}>Powered by the Rideout Spirit—Make What You Have Better.</h2>
             <div className="bg-stone-800 p-6 rounded-lg shadow-lg">
               <p className="text-stone-300 mb-4">
-              Op Point is more than just batteries; it&apos;s about embracing the rideout spirit and making the most of what you&apos;ve got. From early morning surf checks to late-night scooter sessions and e-bike commutes, our roots are in garage workshops and the untamed streets of NorCal. We build power solutions that keep you rolling, wherever your journey takes you.</p>
+                We&apos;re here for those who don&apos;t just buy new—those who upgrade, enhance, and ride what they&apos;ve built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you&apos;re pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you&apos;re just getting started, we&apos;re here to help you build it exactly how you want it.
+              </p>
               <p className="text-stone-300 mb-4">
-              We&apos;re here for those who don&apos;t just buy new—those who upgrade, enhance, and ride what they&apos;ve built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you&apos;re pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you&apos;re just getting started, we&apos;re here to help you build it exactly how you want it.
+                We&apos;re here for those who don&apos;t just buy new—those who upgrade, enhance, and ride what they&apos;ve built. Our batteries are designed for e-bikes, scooters, and more, with unmatched power, endurance, and solid reliability. Whether you&apos;re pushing the limits of your e-bike, cruising on your scooter, or heading to the waves, our products are made to boost what you already have and take it to the next level. And if you&apos;re just getting started, we&apos;re here to help you build it exactly how you want it.
               </p>
               <p className="text-stone-300">
-              Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with OPbattery, you&apos;re not just riding—you&apos;re creating, upgrading, and living the ride your way.              </p>
+                Ride with us. Keep the rideout spirit alive by making what you have even better, from the bike to the board. Because with OPbattery, you&apos;re not just riding—you&apos;re creating, upgrading, and living the ride your way.              </p>
             </div>
           </div>
         )}
@@ -364,11 +404,28 @@ Type error: Type '{ onLogoClick: () => void; }' is not assignable to type 'Intri
             </div>
             <div>
               <h3 className="font-bold mb-2 text-emerald-400">Join Our Community</h3>
-              <p className="text-stone-300 mb-2">Sign up for sustainable tips and exclusive OPbattery offers</p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input type="email" placeholder="Enter your email" className="bg-stone-700 border-stone-600 text-stone-100 flex-grow" />
-                <Button className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap">Stay Connected</Button>
-              </div>
+              {!isSubscribed ? (
+                <>
+                  <p className="text-stone-300 mb-2">Sign up for sustainable tips and exclusive OPbattery offers</p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input 
+                      type="email" 
+                      placeholder="Enter your email" 
+                      className="bg-stone-700 border-stone-600 text-stone-100 flex-grow" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Button 
+                      className="bg-emerald-600 hover:bg-emerald-700 whitespace-nowrap"
+                      onClick={handleStayConnected}
+                    >
+                      Stay Connected
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-emerald-400">Thank you for subscribing! We&apos;ll keep you updated with the latest news and offers.</p>
+              )}
             </div>
           </div>
           <div className="mt-8 text-center text-stone-400">

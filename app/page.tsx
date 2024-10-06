@@ -10,5 +10,9 @@ export default function Home() {
     router.push('/');
   };
 
-  return <EnhancedNorcalBatteryStore onLogoClick={handleLogoClick} />;
+  return (
+    <main>
+      <EnhancedNorcalBatteryStore onLogoClick={handleLogoClick} />
+    </main>
+  );
 }
