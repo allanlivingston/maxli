@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Battery, ShoppingCart, Menu, Trees, Waves } from "lucide-react"
-import * as Tooltip from '@radix-ui/react-tooltip'
 import { ShoppingCart as Cart } from "./ShoppingCart"
 import { useCart } from "@/hooks/useCart"
 import Image from 'next/image'
