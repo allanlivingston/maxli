@@ -27,7 +27,7 @@ export class OrderService implements IOrderService {
     return dbOrder;
   }
 
-  private convertToDBOrder(order: Omit<Order, 'id' | 'created_at'>): Omit<DBOrder, 'created_at' | 'privateid'> {
+  private convertToDBOrder(order: Omit<Order, 'privateid' | 'created_at'>): Omit<DBOrder, 'privateid' | 'created_at'> {
     return order;
   }
 
