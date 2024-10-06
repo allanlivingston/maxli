@@ -99,66 +99,66 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
 
   const BatteryCard = ({ battery, color }: { battery: BatteryProduct, color: string }) => {
     const imagePath = `/images/batteries/${battery.type}/${battery.imageName}`;
+    const [isFlipped, setIsFlipped] = useState(false);
+
+    const handleMouseEnter = () => {
+      setIsFlipped(true);
+    };
+
+    const handleMouseLeave = () => {
+      setIsFlipped(false);
+    };
 
     return (
-      <Tooltip.Provider delayDuration={300}>
-        <Tooltip.Root>
-          <Tooltip.Trigger asChild>
-            <div className="relative">  {/* Add this wrapper div */}
-              <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
-                <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
-                  <CardTitle className={`${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
-                    <battery.icon className="mr-2 h-5 w-4" />
-                    {battery.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="aspect-square bg-stone-700 flex items-center justify-center rounded-md mb-4 overflow-hidden">
-                    <Image 
-                      src={imagePath}
-                      alt={battery.name} 
-                      width={200}
-                      height={200}
-                      className="object-cover w-full h-full" 
-                    />
-                  </div>
-                  <p className="text-stone-300">Capacity: {battery.capacity}</p>
-                  <p className={`font-bold mt-2 ${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
-                    ${battery.price.toFixed(2)}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className={`w-full ${battery.type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
-                    onClick={() => addToCart({
-                      ...battery,
-                      imagePath
-                    })}
-                  >
-                    Add to Cart
-                  </Button>
-                </CardFooter>
-              </Card>
+      <Card key={battery.id} className="bg-stone-800 border-stone-700 overflow-hidden cursor-pointer">
+        <CardHeader className={`bg-gradient-to-br from-${color}-900 to-stone-800`}>
+          <CardTitle className={`${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} flex items-center`}>
+            <battery.icon className="mr-2 h-5 w-4" />
+            {battery.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div 
+            className="aspect-square bg-stone-700 rounded-md mb-4 overflow-hidden relative perspective-1000"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className={`w-full h-full transition-transform duration-500 transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+              <div className="absolute w-full h-full backface-hidden">
+                <Image 
+                  src={imagePath}
+                  alt={battery.name} 
+                  width={200}
+                  height={200}
+                  className="object-cover w-full h-full" 
+                />
+              </div>
+              <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-stone-800 text-stone-300 p-4 flex flex-col justify-center items-center">
+                <p>Capacity: {battery.capacity}</p>
+                <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
+                <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
+              </div>
             </div>
-          </Tooltip.Trigger>
-          <Tooltip.Portal>
-            <Tooltip.Content 
-              className="bg-stone-700 text-stone-100 p-4 rounded-md shadow-lg max-w-xs z-50"
-              sideOffset={-150}  // Adjust this value to position the tooltip vertically
-              side="top"
-              align="center"
-            >
-              <h3 className="font-bold mb-2">{battery.name}</h3>
-              <p>Capacity: {battery.capacity}</p>
-              <p>Price: ${battery.price.toFixed(2)}</p>
-              <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
-              <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        </Tooltip.Root>
-      </Tooltip.Provider>
-    )
-  }
+          </div>
+          <p className="text-stone-300">Capacity: {battery.capacity}</p>
+          <p className={`font-bold mt-2 ${battery.type === 'surfboard' ? 'text-blue-300' : `text-${color}-300`} text-lg`}>
+            ${battery.price.toFixed(2)}
+          </p>
+        </CardContent>
+        <CardFooter>
+          <Button 
+            className={`w-full ${battery.type === 'surfboard' ? 'bg-blue-600 hover:bg-blue-700' : `bg-${color}-600 hover:bg-${color}-700`}`}
+            onClick={() => addToCart({
+              ...battery,
+              imagePath
+            })}
+          >
+            Add to Cart
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-stone-900 text-stone-100 font-sans">
