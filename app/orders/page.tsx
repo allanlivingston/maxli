@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useGuestId } from '@/utils/guestId';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, ExternalLink } from 'lucide-react';
 import { Order as OrderType } from '@/types/Order';
 import Link from 'next/link';  // Add this import
 import { ChevronLeft } from 'lucide-react';
@@ -152,8 +152,21 @@ export default function OrdersPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="text-right text-lg font-bold text-emerald-500">
-                    Total: ${(order.total).toFixed(2)}
+                  <div className="flex justify-between items-center">
+                    <div className="text-lg font-bold text-emerald-500">
+                      Total: ${(order.total).toFixed(2)}
+                    </div>
+                    {order.stripeReceiptUrl && (
+                      <a 
+                        href={order.stripeReceiptUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center text-emerald-400 hover:text-emerald-300 transition duration-300"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        View Receipt
+                      </a>
+                    )}
                   </div>
                 </div>
               )) ?? []
