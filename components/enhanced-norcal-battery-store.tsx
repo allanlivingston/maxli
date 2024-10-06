@@ -66,6 +66,11 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
     }, 300); // 300ms delay before hiding the MiniCart
   };
 
+  const handleOpenFullCart = () => {
+    setActiveTab("cart");
+    setIsCartHovered(false); // Hide MiniCart
+  };
+
   useEffect(() => {
     return () => {
       if (timeoutRef.current) {
@@ -199,7 +204,7 @@ Type error: Type '{ onLogoClick: () => void; }' is not assignable to type 'Intri
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => setActiveTab("cart")} 
+                onClick={handleOpenFullCart}  // Use the new handler here
                 className="relative"
                 onMouseEnter={handleCartEnter}
                 onMouseLeave={handleCartLeave}
