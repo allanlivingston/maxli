@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       console.log(`Checkout completed: ${session.id}`);
-
+ 
       try {
         console.log('Updating order after Stripe return...');
         const updatedOrder = await orderService.updateOrderAfterStripeReturn(session.id);
