@@ -51,6 +51,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (updatedOrder) {
           console.log(`Order ${updatedOrder.privateid} updated after Stripe return`);
           
+          // Fetch the payment intent to get the latest charge
+          const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
+          const charge = paymentIntent.latest_charge as string;
+
+          // Retrieve the charge to get the receipt URL
+          const chargeDetails = await stripe.charges.retrieve(charge);
+          const receiptUrl = chargeDetails.receipt_url;
+
+          if (receiptUrl && updatedOrder.privateid) {
+            console.log(`Updating receipt URL for order: ${updatedOrder.privateid}`);
+            const receiptUpdateResult = await orderService.updateReceiptUrl(updatedOrder.privateid, receiptUrl);
+            console.log('Receipt URL update result:', receiptUpdateResult);
+          } else if (!receiptUrl) {
+            console.log('No receipt URL available for this charge');
+          } else {
+            console.log('Order ID is undefined, cannot update receipt URL');
+          }
+
           if (updatedOrder.status !== 'paid') {
             if (updatedOrder.privateid) {
               console.log(`Updating order status to paid for order: ${updatedOrder.privateid}`);

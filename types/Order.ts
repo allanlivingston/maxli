@@ -20,6 +20,7 @@ export interface Order {
   status: OrderStatus;
   shippingAddress?: ShippingAddress;
   created_at?: Date; // Changed from create_at to created_at
+  stripeReceiptUrl?: string; // Add this new property
 }
 
 export interface OrderItem {

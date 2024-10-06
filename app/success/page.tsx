@@ -113,6 +113,21 @@ export default function SuccessPage() {
                   Total: ${(order.total).toFixed(2)}
                 </div>
                 <p className="text-stone-300 mt-4">Estimated Ready Date: {readyDate}</p>
+                
+                {/* Add the Stripe receipt button */}
+                {order.stripeReceiptUrl && (
+                  <div className="mt-4">
+                    <a 
+                      href={order.stripeReceiptUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                        View Receipt
+                      </Button>
+                    </a>
+                  </div>
+                )}
               </div>
               
               <div className="flex justify-between">

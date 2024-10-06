@@ -249,5 +249,24 @@ export class OrderService implements IOrderService {
     }
   }
 
+  async updateReceiptUrl(orderId: string, receiptUrl: string): Promise<Order | null> {
+    try {
+      console.log(`Updating receipt URL for order ID: ${orderId}`);
+      const { data, error } = await this.supabase
+        .from('orders')
+        .update({ stripeReceiptUrl: receiptUrl })
+        .eq('privateid', orderId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      console.log(`Receipt URL updated successfully: ${JSON.stringify(data)}`);
+      return data as Order;
+    } catch (error) {
+      console.error('Error updating receipt URL:', error);
+      throw new Error('Failed to update receipt URL');
+    }
+  }
+
   // Add any other business logic methods as needed
 }

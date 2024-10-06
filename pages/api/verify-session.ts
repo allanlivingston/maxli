@@ -21,6 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return;
       }
 
+      console.log('Order found:', order);
+
       res.status(200).json({ verified: true, order });
     } catch (error) {
       console.error('Error verifying session:', error);
