@@ -19,16 +19,17 @@ const orderService = new OrderService();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    console.log('Webhook received');
     const buf = await buffer(req);
-    const sig = req.headers['stripe-signature']!;
+    const rawBody = buf.toString('utf8');
+    const sig = req.headers['stripe-signature'] as string;
 
+    console.log('Webhook received');
     console.log('Webhook signature:', sig);
 
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(buf.toString(), sig, webhookSecret);
+      event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
       console.log(`Event constructed: ${event.type}`);
     } catch (err: unknown) {
       console.error(`Webhook Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
