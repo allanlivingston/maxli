@@ -4,8 +4,9 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useGuestId } from '../utils/guestId';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, ExternalLink } from 'lucide-react';
 import { Order as OrderType } from '../types/Order'; // Rename the imported type
+import { Button } from "@/components/ui/button";
 
 // Define a basic type for order items
 type OrderItem = {
@@ -18,6 +19,15 @@ type OrderItem = {
   name?: string;
   quantity?: number;
   price?: number;
+};
+
+// Add this type definition near the top of your file, after other type definitions
+type AddressObject = {
+  line1: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
 };
 
 export default function Orders() {
@@ -98,6 +108,15 @@ export default function Orders() {
     return <div className="text-stone-300 mb-2">No items available</div>;
   };
 
+  const formatAddress = (address: string | AddressObject): string => {
+    if (typeof address === 'string') return address;
+    if (typeof address === 'object') {
+      const { line1, city, state, postal_code, country } = address;
+      return `${line1}, ${city}, ${state} ${postal_code}, ${country}`;
+    }
+    return 'Address not available';
+  };
+
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
@@ -134,12 +153,38 @@ export default function Orders() {
                 {order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1) : 'Unknown'}
               </span>
             </div>
+            {order.shippingAddress && order.shippingCost > 0 && (
+              <div className="mb-4">
+                <span className="text-stone-300">Shipping Address: </span>
+                <span className="text-stone-400">{formatAddress(order.shippingAddress)}</span>
+              </div>
+            )}
             <div className="border-t border-stone-700 pt-4 mb-4">
               {renderOrderItems(order.items)}
             </div>
+            {order.shippingCost > 0 && (
+              <div className="flex justify-between text-stone-300 mb-2">
+                <span>Shipping</span>
+                <span>${order.shippingCost.toFixed(2)}</span>
+              </div>
+            )}
             <div className="text-right text-lg font-bold text-emerald-500">
               Total: ${(order.total || 0).toFixed(2)}
             </div>
+            {order.stripeReceiptUrl && (
+              <div className="mt-4">
+                <a 
+                  href={order.stripeReceiptUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center"
+                >
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                    View Receipt <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                </a>
+              </div>
+            )}
           </div>
         ))
       ) : (
