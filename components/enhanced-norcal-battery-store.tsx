@@ -143,13 +143,16 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
   const BatteryCard = ({ battery, color }: { battery: BatteryProduct, color: string }) => {
     const imagePath = `/images/batteries/${battery.type}/${battery.imageName}`;
     const [isFlipped, setIsFlipped] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
     const handleMouseEnter = () => {
+      setIsHovered(true);
       setIsFlipped(true);
     };
 
     const handleMouseLeave = () => {
-      setIsFlipped(false);
+      setIsHovered(false);
+      // We'll keep isFlipped true to allow for the fade effect
     };
 
     return (
@@ -166,8 +169,8 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <div className={`w-full h-full transition-transform duration-500 transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-              <div className="absolute w-full h-full backface-hidden">
+            <div className={`w-full h-full transition-all duration-500 transform-style-preserve-3d ${isFlipped ? 'rotate-x-180' : ''}`}>
+              <div className={`absolute w-full h-full backface-hidden transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
                 <Image 
                   src={imagePath}
                   alt={battery.name} 
@@ -176,7 +179,7 @@ export function EnhancedNorcalBatteryStore({ onLogoClick }: EnhancedNorcalBatter
                   className="object-cover w-full h-full" 
                 />
               </div>
-              <div className="absolute w-full h-full backface-hidden rotate-y-180 bg-stone-800 text-stone-300 p-4 flex flex-col justify-center items-center">
+              <div className={`absolute w-full h-full backface-hidden rotate-x-180 bg-stone-800 text-stone-300 p-4 flex flex-col justify-center items-center transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
                 <p>Capacity: {battery.capacity}</p>
                 <p>Perfect for {battery.id % 2 === 0 ? "long rides" : "quick trips"}</p>
                 <p>Weather resistant: {battery.id % 3 === 0 ? "Yes" : "No"}</p>
