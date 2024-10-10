@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Order } from '@/types/Order';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"; // Make sure you have this component
+import { ExternalLink } from 'lucide-react'; // Import the ExternalLink icon
 
 export default function Admin() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -106,14 +107,28 @@ export default function Admin() {
                     </td>
                     <td className="p-3 text-emerald-400 font-bold">${order.total.toFixed(2)}</td>
                     <td className="p-3">
-                      {order.status === 'paid' && (
-                        <Button 
-                          onClick={() => order.privateid && handleRefund(order.privateid)}
-                          className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
-                        >
-                          Refund
-                        </Button>
-                      )}
+                      <div className="flex space-x-2">
+                        {order.status === 'paid' && (
+                          <Button 
+                            onClick={() => order.privateid && handleRefund(order.privateid)}
+                            className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                          >
+                            Refund
+                          </Button>
+                        )}
+                        {order.stripeReceiptUrl && (
+                          <a 
+                            href={order.stripeReceiptUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center"
+                          >
+                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm px-3 py-1 rounded">
+                              Receipt <ExternalLink className="ml-1" />
+                            </Button>
+                          </a>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
