@@ -1,10 +1,13 @@
+'use client';
+
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { supabase } from '../lib/supabaseClient';
-import Admin from '../components/Admin';
+import { useRouter } from 'next/navigation';  // Note: changed from 'next/router'
+import { supabase } from '@/lib/supabaseClient';
+import { Session } from '@supabase/supabase-js'; // Make sure to import the Session type
+import Admin from '@/components/Admin';
 
 export default function AdminPage() {
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<Session | null>(null);
   const router = useRouter();
 
   useEffect(() => {
