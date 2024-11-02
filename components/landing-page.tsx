@@ -112,7 +112,7 @@ export function LandingPageComponent() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
-                  Electrify Your Rideouts
+                  Maximize Your Rideouts
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-200 md:text-xl">
                   Maximum Lithium: Powering your adventures with cutting-edge battery technology for personal electric vehicles.
