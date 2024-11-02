@@ -42,9 +42,6 @@ export function LandingPageComponent() {
           <Link href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
             Features
           </Link>
-          <Link href="#pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
-            Pricing
-          </Link>
           <Link href="#about" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
             About
           </Link>
@@ -80,13 +77,6 @@ export function LandingPageComponent() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Features
-              </Link>
-              <Link 
-                href="#pricing" 
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Pricing
               </Link>
               <Link 
                 href="#about" 
