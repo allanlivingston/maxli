@@ -39,14 +39,12 @@ export function LandingPageComponent() {
     const formData = new FormData(form)
 
     try {
-      const response = await fetch('/', {
+      const response = await fetch('https://formspree.io/f/mnnqpodo', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          'form-name': 'subscribe',
-          email: formData.get('email') as string,
-          message: 'subscribe'
-        }).toString()
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
       })
 
       if (response.ok) {
@@ -252,11 +250,9 @@ export function LandingPageComponent() {
                   <form 
                     onSubmit={handleSubscribe} 
                     className="flex space-x-2"
-                    method="POST" 
-                    data-netlify="true"
-                    name="subscribe"
+                    action="https://formspree.io/f/mnnqpodo"
+                    method="POST"
                   >
-                    <input type="hidden" name="form-name" value="subscribe" />
                     <Input
                       className="max-w-lg flex-1 bg-white text-gray-900"
                       placeholder="Enter your email"
