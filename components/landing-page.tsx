@@ -16,8 +16,6 @@ export function LandingPageComponent() {
     const handleScroll = () => {
       const currentScrollPos = window.scrollY
       const isScrollingDown = currentScrollPos > prevScrollPos
-      const isScrolledPastThreshold = currentScrollPos > 100 // Only hide after scrolling 100px
-
       setVisible(!isScrollingDown || currentScrollPos < 100)
       setPrevScrollPos(currentScrollPos)
     }
@@ -110,11 +108,11 @@ export function LandingPageComponent() {
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">What Our Riders Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
-                <p className="text-gray-600 dark:text-gray-300 mb-4">"Maximum Lithium batteries have transformed my e-bike rideouts. I can now tackle longer trails and explore further without worrying about running out of power!"</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;Maximum Lithium batteries have transformed my e-bike rideouts. I can now tackle longer trails and explore further without worrying about running out of power!&rdquo;</p>
                 <p className="font-bold text-blue-600 dark:text-blue-400">- Sarah J., E-Bike Enthusiast</p>
               </div>
               <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
-                <p className="text-gray-600 dark:text-gray-300 mb-4">"As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures."</p>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures.&rdquo;</p>
                 <p className="font-bold text-blue-600 dark:text-blue-400">- Mike T., DIY E-Board Builder</p>
               </div>
             </div>
@@ -126,12 +124,12 @@ export function LandingPageComponent() {
               <div>
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600 dark:text-blue-400">Our Rideout Ethos</h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  At Maximum Lithium, we're more than just a battery company. We're a community of electric vehicle enthusiasts
-                  pushing the boundaries of what's possible on the road and trail. Our passion for sustainable transportation
+                  At Maximum Lithium, we&apos;re more than just a battery company. We&apos;re a community of electric vehicle enthusiasts
+                  pushing the boundaries of what&apos;s possible on the road and trail. Our passion for sustainable transportation
                   and outdoor adventures drives us to create the most advanced, reliable, and eco-friendly batteries on the market.
                 </p>
                 <p className="text-gray-600 dark:text-gray-300">
-                  We believe in empowering individuals to embrace electric mobility and explore the great outdoors, whether it's
+                  We believe in empowering individuals to embrace electric mobility and explore the great outdoors, whether it&apos;s
                   through e-bikes, e-scooters, or DIY projects. Our team of engineers and EV enthusiasts work tirelessly to ensure
                   that every Maximum Lithium battery delivers the performance and reliability you need for your electric adventures.
                 </p>
