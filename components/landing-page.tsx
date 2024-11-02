@@ -1,17 +1,22 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Battery, Zap, Gauge, Award, ChevronRight, Menu, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { BatteryThemeToggle } from "@/components/ui/battery-theme-toggle"
+import { ContactForm } from "@/components/ui/contact-form"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 export function LandingPageComponent() {
   const [prevScrollPos, setPrevScrollPos] = useState(0)
   const [visible, setVisible] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [subscribing, setSubscribing] = useState(false)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +29,38 @@ export function LandingPageComponent() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [prevScrollPos])
+
+  const handleSubscribe = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setSubscribing(true)
+
+    const form = e.target as HTMLFormElement
+    const email = new FormData(form).get('email')
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          'form-name': 'subscribe',
+          email: email as string,
+          message: 'subscribe'
+        }).toString()
+      })
+
+      if (response.ok) {
+        form.reset()
+        setShowSuccessDialog(true)
+        setIsSubscribed(true)
+      } else {
+        throw new Error('Form submission failed')
+      }
+    } catch (error) {
+      alert('Sorry, there was an error submitting the form. Please try again.')
+    } finally {
+      setSubscribing(false)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -97,6 +134,7 @@ export function LandingPageComponent() {
           </div>
         </>
       )}
+      <ContactForm />
       <main className="flex-1 pt-14 mx-auto w-full">
         <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden">
           <Image
@@ -201,17 +239,30 @@ export function LandingPageComponent() {
                 </p>
               </div>
               <div className="w-full max-w-sm space-y-2">
-                <form className="flex space-x-2">
-                  <Input
-                    className="max-w-lg flex-1 bg-white text-gray-900"
-                    placeholder="Enter your email"
-                    type="email"
-                  />
-                  <Button className="bg-green-600 text-white hover:bg-green-700">
-                    Subscribe
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </form>
+                {isSubscribed ? (
+                  <div className="text-center text-gray-200">
+                    Thanks for subscribing! We'll be in touch soon.
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubscribe} className="flex space-x-2">
+                    <Input
+                      className="max-w-lg flex-1 bg-white text-gray-900"
+                      placeholder="Enter your email"
+                      type="email"
+                      name="email"
+                      required
+                      disabled={subscribing}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="bg-green-600 text-white hover:bg-green-700"
+                      disabled={subscribing}
+                    >
+                      {subscribing ? 'Subscribing...' : 'Subscribe'}
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </form>
+                )}
                 <p className="text-xs text-gray-200">
                   By subscribing, you agree to our terms and privacy policy.
                 </p>
@@ -237,6 +288,19 @@ export function LandingPageComponent() {
           </Link>
         </nav>
       </footer>
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-center text-gray-900 dark:text-white">Welcome to Maximum Lithium!</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <Battery className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+            <p className="text-center text-gray-600 dark:text-gray-200">
+              Thank you for subscribing! We'll keep you updated with the latest news and developments.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
