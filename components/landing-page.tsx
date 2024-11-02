@@ -1,35 +1,59 @@
 'use client'
 
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Battery, Zap, Gauge, Award, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { BatteryThemeToggle } from "@/components/ui/battery-theme-toggle"
 
 export function LandingPageComponent() {
+  const [prevScrollPos, setPrevScrollPos] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.scrollY
+      const isScrollingDown = currentScrollPos > prevScrollPos
+      const isScrolledPastThreshold = currentScrollPos > 100 // Only hide after scrolling 100px
+
+      setVisible(!isScrollingDown || currentScrollPos < 100)
+      setPrevScrollPos(currentScrollPos)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [prevScrollPos])
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="px-4 lg:px-6 h-14 flex items-center bg-white shadow-sm z-10 relative">
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header 
+        className={`fixed w-full px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800 shadow-sm z-50 transition-transform duration-300 ${
+          visible ? 'translate-y-0' : '-translate-y-full'
+        }`}
+      >
         <Link className="flex items-center justify-center" href="#">
-          <Battery className="h-6 w-6 text-blue-600" />
-          <span className="ml-2 text-2xl font-bold text-blue-600">Maximum Lithium</span>
+          <Battery className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <span className="ml-2 text-2xl font-bold text-blue-600 dark:text-blue-400">Maximum Lithium</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:text-blue-600 transition-colors" href="#features">
+        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#features">
             Features
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 transition-colors" href="#testimonials">
+          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#testimonials">
             Testimonials
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 transition-colors" href="#about">
+          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#about">
             About
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 transition-colors" href="#contact">
+          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#contact">
             Contact
           </Link>
+          <BatteryThemeToggle />
         </nav>
       </header>
-      <main className="flex-1">
+      <main className="flex-1 pt-14">
         <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden">
           <Image
             src="/images/homebackground.webp?height=1080&width=1920"
@@ -59,60 +83,60 @@ export function LandingPageComponent() {
             </div>
           </div>
         </section>
-        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-white">
+        <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-800">
           <div className="container px-4 md:px-6">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600">Why Choose Maximum Lithium?</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">Why Choose Maximum Lithium?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex flex-col items-center text-center">
-                <Zap className="h-12 w-12 text-blue-600 mb-4" />
-                <h3 className="text-xl font-bold mb-2 text-blue-600">Unparalleled Power</h3>
-                <p className="text-gray-600">Experience longer rides and faster acceleration with our high-capacity batteries.</p>
+                <Zap className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Unparalleled Power</h3>
+                <p className="text-gray-600 dark:text-gray-300">Experience longer rides and faster acceleration with our high-capacity batteries.</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <Gauge className="h-12 w-12 text-blue-600 mb-4" />
-                <h3 className="text-xl font-bold mb-2 text-blue-600">Rapid Charging</h3>
-                <p className="text-gray-600">Get back on the trail quickly with our industry-leading charging speeds.</p>
+                <Gauge className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Rapid Charging</h3>
+                <p className="text-gray-600 dark:text-gray-300">Get back on the trail quickly with our industry-leading charging speeds.</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <Award className="h-12 w-12 text-blue-600 mb-4" />
-                <h3 className="text-xl font-bold mb-2 text-blue-600">Eco-Friendly</h3>
-                <p className="text-gray-600">Reduce your carbon footprint with our sustainable and recyclable battery technology.</p>
+                <Award className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Eco-Friendly</h3>
+                <p className="text-gray-600 dark:text-gray-300">Reduce your carbon footprint with our sustainable and recyclable battery technology.</p>
               </div>
             </div>
           </div>
         </section>
-        <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-gray-100">
+        <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
           <div className="container px-4 md:px-6">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600">What Our Riders Say</h2>
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">What Our Riders Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
-                <p className="text-gray-600 mb-4">"Maximum Lithium batteries have transformed my e-bike rideouts. I can now tackle longer trails and explore further without worrying about running out of power!"</p>
-                <p className="font-bold text-blue-600">- Sarah J., E-Bike Enthusiast</p>
+              <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">"Maximum Lithium batteries have transformed my e-bike rideouts. I can now tackle longer trails and explore further without worrying about running out of power!"</p>
+                <p className="font-bold text-blue-600 dark:text-blue-400">- Sarah J., E-Bike Enthusiast</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100">
-                <p className="text-gray-600 mb-4">"As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures."</p>
-                <p className="font-bold text-blue-600">- Mike T., DIY E-Board Builder</p>
+              <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
+                <p className="text-gray-600 dark:text-gray-300 mb-4">"As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures."</p>
+                <p className="font-bold text-blue-600 dark:text-blue-400">- Mike T., DIY E-Board Builder</p>
               </div>
             </div>
           </div>
         </section>
-        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-white">
+        <section id="about" className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-800">
           <div className="container px-4 md:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600">Our Rideout Ethos</h2>
-                <p className="text-gray-600 mb-4">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600 dark:text-blue-400">Our Rideout Ethos</h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
                   At Maximum Lithium, we're more than just a battery company. We're a community of electric vehicle enthusiasts
                   pushing the boundaries of what's possible on the road and trail. Our passion for sustainable transportation
                   and outdoor adventures drives us to create the most advanced, reliable, and eco-friendly batteries on the market.
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-300">
                   We believe in empowering individuals to embrace electric mobility and explore the great outdoors, whether it's
                   through e-bikes, e-scooters, or DIY projects. Our team of engineers and EV enthusiasts work tirelessly to ensure
                   that every Maximum Lithium battery delivers the performance and reliability you need for your electric adventures.
                 </p>
               </div>
-              <div className="relative h-[400px] bg-gray-200 rounded-lg overflow-hidden">
+              <div className="relative h-[400px] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-green-700 opacity-75"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Battery className="h-32 w-32 text-white" />
@@ -152,13 +176,19 @@ export function LandingPageComponent() {
           </div>
         </section>
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white">
-        <p className="text-xs text-gray-500">© 2024 Maximum Lithium. All rights reserved.</p>
+      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t bg-white dark:bg-gray-800 dark:border-gray-700">
+        <p className="text-xs text-gray-500 dark:text-gray-400">© 2024 Maximum Lithium. All rights reserved.</p>
         <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-xs hover:underline underline-offset-4 text-blue-600" href="#">
+          <Link 
+            className="text-xs hover:underline underline-offset-4 text-blue-600 dark:text-blue-400" 
+            href="/terms"
+          >
             Terms of Service
           </Link>
-          <Link className="text-xs hover:underline underline-offset-4 text-blue-600" href="#">
+          <Link 
+            className="text-xs hover:underline underline-offset-4 text-blue-600 dark:text-blue-400" 
+            href="/privacy"
+          >
             Privacy
           </Link>
         </nav>
