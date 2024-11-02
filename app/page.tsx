@@ -1,18 +1,17 @@
-'use client';
-
-import { useRouter } from 'next/navigation';
-import { EnhancedNorcalBatteryStore } from '@/components/enhanced-norcal-battery-store';
+import Image from 'next/image'
+import { LandingPageComponent } from '@/components/landing-page'
 
 export default function Home() {
-  const router = useRouter();
-
-  const handleLogoClick = () => {
-    router.push('/');
-  };
-
   return (
-    <main>
-      <EnhancedNorcalBatteryStore onLogoClick={handleLogoClick} />
-    </main>
-  );
+    <>
+      <Image
+        src="/images/homebackground.webp"
+        alt="Home background"
+        priority
+        fill
+        className="object-cover z-[-1]"
+      />
+      <LandingPageComponent />
+    </>
+  )
 }
