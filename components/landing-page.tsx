@@ -52,6 +52,11 @@ export function LandingPageComponent() {
         form.reset()
         setShowSuccessDialog(true)
         setIsSubscribed(true)
+        
+        // Auto close after 3 seconds
+        setTimeout(() => {
+          setShowSuccessDialog(false)
+        }, 3000)
       } else {
         throw new Error('Form submission failed')
       }
@@ -298,6 +303,15 @@ export function LandingPageComponent() {
             <p className="text-center text-gray-600 dark:text-gray-200">
               Thank you for subscribing! We'll keep you updated with the latest news and developments.
             </p>
+            <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-4">
+              <div 
+                className="h-full bg-blue-600 dark:bg-blue-400 transition-all duration-[3000ms] ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 3s linear forwards'
+                }}
+              />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
