@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Battery, Zap, Gauge, Award, ChevronRight } from "lucide-react"
+import { Battery, Zap, Gauge, Award, ChevronRight, Menu, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { BatteryThemeToggle } from "@/components/ui/battery-theme-toggle"
@@ -11,6 +11,7 @@ import { BatteryThemeToggle } from "@/components/ui/battery-theme-toggle"
 export function LandingPageComponent() {
   const [prevScrollPos, setPrevScrollPos] = useState(0)
   const [visible, setVisible] = useState(true)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,30 +28,85 @@ export function LandingPageComponent() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <header 
-        className={`fixed w-full px-4 lg:px-6 h-14 flex items-center bg-white dark:bg-gray-800 shadow-sm z-50 transition-transform duration-300 ${
+        className={`fixed w-full px-4 lg:px-6 h-14 flex items-center justify-between bg-white dark:bg-gray-800 shadow-sm z-50 transition-transform duration-300 ${
           visible ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
-        <Link className="flex items-center justify-center" href="#">
+        <Link className="flex items-center" href="#">
           <Battery className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-          <span className="ml-2 text-2xl font-bold text-blue-600 dark:text-blue-400">Maximum Lithium</span>
+          <span className="ml-2 text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+            Maximum Lithium
+          </span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#features">
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
             Features
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#testimonials">
-            Testimonials
+          <Link href="#pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
+            Pricing
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#about">
+          <Link href="#about" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
             About
           </Link>
-          <Link className="text-sm font-medium hover:text-blue-600 dark:text-gray-200 dark:hover:text-blue-400 transition-colors" href="#contact">
-            Contact
-          </Link>
+          <Button>Get Started</Button>
           <BatteryThemeToggle />
         </nav>
+        <div className="flex md:hidden items-center gap-2">
+          <BatteryThemeToggle />
+          <button 
+            className="p-2 text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </header>
+      {isMobileMenuOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className="fixed top-14 left-0 right-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-50">
+            <nav className="flex flex-col p-4 space-y-4">
+              <Link 
+                href="#features" 
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link 
+                href="#pricing" 
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link 
+                href="#about" 
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-200 dark:hover:text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                About
+              </Link>
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <Button 
+                  className="w-full"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Get Started
+                </Button>
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
       <main className="flex-1 pt-14">
         <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden">
           <Image

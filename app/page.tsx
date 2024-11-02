@@ -3,7 +3,7 @@ import { LandingPageComponent } from '@/components/landing-page'
 
 export default function Home() {
   return (
-    <>
+    <div className="relative">
       <Image
         src="/images/homebackground.webp"
         alt="Home background"
@@ -12,6 +12,6 @@ export default function Home() {
         className="object-cover z-[-1]"
       />
       <LandingPageComponent />
-    </>
+    </div>
   )
 }
