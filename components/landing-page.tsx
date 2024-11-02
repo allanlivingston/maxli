@@ -36,7 +36,7 @@ export function LandingPageComponent() {
     setSubscribing(true)
 
     const form = e.target as HTMLFormElement
-    const email = new FormData(form).get('email')
+    const formData = new FormData(form)
 
     try {
       const response = await fetch('/', {
@@ -44,7 +44,7 @@ export function LandingPageComponent() {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
           'form-name': 'subscribe',
-          email: email as string,
+          email: formData.get('email') as string,
           message: 'subscribe'
         }).toString()
       })
@@ -54,7 +54,6 @@ export function LandingPageComponent() {
         setShowSuccessDialog(true)
         setIsSubscribed(true)
         
-        // Auto close after 3 seconds
         setTimeout(() => {
           setShowSuccessDialog(false)
         }, 3000)
@@ -250,7 +249,14 @@ export function LandingPageComponent() {
                     Thanks for subscribing! We'll be in touch soon.
                   </div>
                 ) : (
-                  <form onSubmit={handleSubscribe} className="flex space-x-2">
+                  <form 
+                    onSubmit={handleSubscribe} 
+                    className="flex space-x-2"
+                    method="POST" 
+                    data-netlify="true"
+                    name="subscribe"
+                  >
+                    <input type="hidden" name="form-name" value="subscribe" />
                     <Input
                       className="max-w-lg flex-1 bg-white text-gray-900"
                       placeholder="Enter your email"
