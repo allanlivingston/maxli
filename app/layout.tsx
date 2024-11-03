@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "OnPoint Batteries",
+  title: "Maximum Lithium",
   description: "Eco-friendly power solutions for your adventures",
   icons: {
     icon: [
