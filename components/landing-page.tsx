@@ -18,6 +18,9 @@ export function LandingPageComponent() {
   const [subscribing, setSubscribing] = useState(false)
   const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isGetStartedOpen, setIsGetStartedOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showGetStartedSuccess, setShowGetStartedSuccess] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +68,40 @@ export function LandingPageComponent() {
     }
   }
 
+  const handleGetStarted = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    const form = e.target as HTMLFormElement
+    const formData = new FormData(form)
+
+    try {
+      const response = await fetch('https://formspree.io/f/xjkvypwj', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        form.reset()
+        setIsGetStartedOpen(false)
+        setShowGetStartedSuccess(true)
+        
+        setTimeout(() => {
+          setShowGetStartedSuccess(false)
+        }, 3000)
+      } else {
+        throw new Error('Form submission failed')
+      }
+    } catch (error) {
+      alert('Sorry, there was an error submitting the form. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
       <header 
@@ -85,7 +122,7 @@ export function LandingPageComponent() {
           <Link href="#about" className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100">
             About
           </Link>
-          <Button>Get Started</Button>
+          <Button onClick={() => setIsGetStartedOpen(true)}>Get Started</Button>
           <BatteryThemeToggle />
         </nav>
         <div className="flex md:hidden items-center gap-2">
@@ -128,7 +165,10 @@ export function LandingPageComponent() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                 <Button 
                   className="w-full"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    setIsGetStartedOpen(true)
+                  }}
                 >
                   Get Started
                 </Button>
@@ -160,7 +200,12 @@ export function LandingPageComponent() {
                 </p>
               </div>
               <div className="space-x-4">
-                <Button className="bg-white text-blue-600 hover:bg-gray-100">Get Started</Button>
+                <Button 
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  onClick={() => setIsGetStartedOpen(true)}
+                >
+                  Get Started
+                </Button>
                 <Button variant="outline" className="text-white border-white hover:bg-white/10">
                   Explore Range
                 </Button>
@@ -309,6 +354,69 @@ export function LandingPageComponent() {
             <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-4">
               <div 
                 className="h-full bg-blue-600 dark:bg-blue-400 transition-all duration-[3000ms] ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 3s linear forwards'
+                }}
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isGetStartedOpen} onOpenChange={setIsGetStartedOpen}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-center text-gray-900 dark:text-white">Start Your Electric Journey</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleGetStarted} className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                Email Address
+              </label>
+              <Input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                className="w-full"
+                disabled={isSubmitting}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                Tell us about your project
+              </label>
+              <textarea
+                name="message"
+                placeholder="What are you building? What kind of battery solutions are you looking for?"
+                required
+                className="w-full min-h-[100px] px-3 py-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isSubmitting}
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full bg-blue-600 text-white hover:bg-blue-700"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Sending...' : 'Send Message'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showGetStartedSuccess} onOpenChange={setShowGetStartedSuccess}>
+        <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle className="text-center text-gray-900 dark:text-white">Message Received!</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <Battery className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+            <p className="text-center text-gray-600 dark:text-gray-200">
+              Thank you for reaching out! We'll review your project details and get back to you soon.
+            </p>
+            <div className="w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mt-4">
+              <div 
+                className="h-full bg-blue-600 dark:bg-blue-400"
                 style={{ 
                   width: '100%',
                   animation: 'shrink 3s linear forwards'
