@@ -266,11 +266,13 @@ export function LandingPageComponent() {
                   that every Maximum Lithium battery delivers the performance and reliability you need for your electric adventures.
                 </p>
               </div>
-              <div className="relative h-[400px] bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-green-700 opacity-75"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Battery className="h-32 w-32 text-white" />
-                </div>
+              <div className="relative h-[400px] rounded-lg overflow-hidden">
+                <Image
+                  src="/images/sfrideout.webp"
+                  alt="Electric bike rider on a scenic trail"
+                  fill
+                  className="object-cover"
+                />
               </div>
             </div>
           </div>
