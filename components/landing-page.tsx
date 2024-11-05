@@ -4,7 +4,7 @@
 import { useEffect, useState, FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Battery, Zap, Gauge, Award, ChevronRight, Menu, X, SunMoon, Moon } from "lucide-react"
+import { Battery, Zap, Gauge, Award, ChevronRight, Menu, X } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { BatteryThemeToggle } from "@/components/ui/battery-theme-toggle"
