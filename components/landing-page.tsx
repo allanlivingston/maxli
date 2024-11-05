@@ -161,7 +161,7 @@ export function LandingPageComponent() {
               >
                 About
               </Link>
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400">
                 <Button 
                   className="w-full"
                   onClick={() => {
@@ -187,28 +187,30 @@ export function LandingPageComponent() {
             className="absolute inset-0 object-cover w-full h-full"
             priority
           />
-          <div className="absolute inset-0 bg-blue-600 bg-opacity-60"></div>
+          <div className="absolute inset-0  bg-white dark:bg-gray-800 bg-opacity-100"></div>
           <div className="container px-4 md:px-8 relative z-10 mx-auto max-w-[1400px]">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white">
+                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-blue-600 dark:text-blue-400">
                   Maximize Your Rideouts
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-200 md:text-xl">
+                <p className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
                   Maximum Lithium: Powering your adventures with cutting-edge battery technology for personal electric vehicles.
                 </p>
               </div>
-              <div className="space-x-4">
+              
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400">
                 <Button 
-                  className="bg-white text-blue-600 hover:bg-gray-100"
-                  onClick={() => setIsGetStartedOpen(true)}
+                  className="w-full"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false)
+                    setIsGetStartedOpen(true)
+                  }}
                 >
                   Get Started
                 </Button>
-                <Button variant="outline" className="text-white border-white hover:bg-white/10">
-                  Explore Range
-                </Button>
               </div>
+            
             </div>
           </div>
         </section>
