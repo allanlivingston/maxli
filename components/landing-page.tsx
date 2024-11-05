@@ -276,14 +276,14 @@ export function LandingPageComponent() {
             </div>
           </div>
         </section>
-        <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-blue-600">
+        <section id="contact" className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">
                   Ready to Maximize Your Rideouts?
                 </h2>
-                <p className="mx-auto max-w-[600px] text-gray-200 md:text-xl">
+                <p className="mx-auto max-w-[600px] text-gray-600 dark:text-gray-300 md:text-xl">
                   Join the Maximum Lithium community and take your electric adventures to the next level.
                 </p>
               </div>
@@ -317,7 +317,7 @@ export function LandingPageComponent() {
                     </Button>
                   </form>
                 )}
-                <p className="text-xs text-gray-200">
+                <p className="text-xs text-gray-600 dark:text-gray-300">
                   By subscribing, you agree to our terms and privacy policy.
                 </p>
               </div>
