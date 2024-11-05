@@ -21,6 +21,7 @@ export function LandingPageComponent() {
   const [isGetStartedOpen, setIsGetStartedOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showGetStartedSuccess, setShowGetStartedSuccess] = useState(false)
+  const [overlayOpacity, setOverlayOpacity] = useState(1)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,6 +34,18 @@ export function LandingPageComponent() {
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [prevScrollPos])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY
+      const maxScroll = 500 // Adjust this value to control fade speed
+      const newOpacity = Math.max(0, 1 - (scrollPosition / maxScroll))
+      setOverlayOpacity(newOpacity)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleSubscribe = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -187,7 +200,10 @@ export function LandingPageComponent() {
             className="absolute inset-0 object-cover w-full h-full"
             priority
           />
-          <div className="absolute inset-0  bg-white dark:bg-gray-800 bg-opacity-100"></div>
+          <div 
+            className="absolute inset-0 bg-white dark:bg-gray-800 transition-opacity duration-300 ease-out"
+            style={{ opacity: overlayOpacity }}
+          ></div>
           <div className="container px-4 md:px-8 relative z-10 mx-auto max-w-[1400px]">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
