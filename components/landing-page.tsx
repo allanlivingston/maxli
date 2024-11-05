@@ -110,8 +110,7 @@ export function LandingPageComponent() {
         }`}
       >
         <Link className="flex items-center" href="#">
-          <Battery className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-          <span className="ml-2 text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+          <span className="ml-3 text-xl md:text-3xl font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
             Maximum Lithium
           </span>
         </Link>
