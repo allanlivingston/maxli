@@ -279,7 +279,7 @@ export function LandingPageComponent() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div>
                   <h2 className="animate-slide-up text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600 dark:text-blue-400">
-                    Our Rideout Ethos
+                    Maximize Builders
                   </h2>
                   <p className="animate-slide-up delay-100 text-gray-600 dark:text-gray-300 mb-4">
                     At Maximum Lithium, we're more than just a battery company. We're a community of riders, builders, and innovators who believe in pushing the boundaries of what's possible with electric vehicles.
