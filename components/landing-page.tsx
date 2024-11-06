@@ -232,19 +232,21 @@ export function LandingPageComponent() {
         </section>
         <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-white dark:bg-gray-800">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">Why Choose Maximum Lithium?</h2>
+            <h2 className="animate-slide-up text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">
+              Why Choose Maximum Lithium?
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center text-center">
+              <div className="animate-slide-up delay-100 flex flex-col items-center text-center">
                 <Zap className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Unparalleled Power</h3>
                 <p className="text-gray-600 dark:text-gray-300">Experience longer rides and faster acceleration with our high-capacity batteries.</p>
               </div>
-              <div className="flex flex-col items-center text-center">
+              <div className="animate-slide-up delay-200 flex flex-col items-center text-center">
                 <Gauge className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Rapid Charging</h3>
                 <p className="text-gray-600 dark:text-gray-300">Get back on the trail quickly with our industry-leading charging speeds.</p>
               </div>
-              <div className="flex flex-col items-center text-center">
+              <div className="animate-slide-up delay-300 flex flex-col items-center text-center">
                 <Award className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Eco-Friendly</h3>
                 <p className="text-gray-600 dark:text-gray-300">Reduce your carbon footprint with our sustainable and recyclable battery technology.</p>
@@ -254,13 +256,15 @@ export function LandingPageComponent() {
         </section>
         <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">What Our Riders Say</h2>
+            <h2 className="animate-slide-up text-3xl font-bold tracking-tighter sm:text-5xl text-center mb-12 text-blue-600 dark:text-blue-400">
+              What Our Riders Say
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
+              <div className="animate-slide-up delay-100 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;Maximum Lithium batteries have transformed my e-bike rideouts. I can now tackle longer trails and explore further without worrying about running out of power!&rdquo;</p>
                 <p className="font-bold text-blue-600 dark:text-blue-400">- Sarah J., E-Bike Enthusiast</p>
               </div>
-              <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
+              <div className="animate-slide-up delay-200 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures.&rdquo;</p>
                 <p className="font-bold text-blue-600 dark:text-blue-400">- Mike T., DIY E-Board Builder</p>
               </div>
@@ -271,19 +275,17 @@ export function LandingPageComponent() {
           <div className="container mx-auto px-4 md:px-6 max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600 dark:text-blue-400">Our Rideout Ethos</h2>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  At Maximum Lithium, we&apos;re more than just a battery company. We&apos;re a community of electric vehicle enthusiasts
-                  pushing the boundaries of what&apos;s possible on the road and trail. Our passion for sustainable transportation
-                  and outdoor adventures drives us to create the most advanced, reliable, and eco-friendly batteries on the market.
+                <h2 className="animate-slide-up text-3xl font-bold tracking-tighter sm:text-4xl mb-4 text-blue-600 dark:text-blue-400">
+                  Our Rideout Ethos
+                </h2>
+                <p className="animate-slide-up delay-100 text-gray-600 dark:text-gray-300 mb-4">
+                  At Maximum Lithium, we&apos;re more than just a battery company...
                 </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  We believe in empowering individuals to embrace electric mobility and explore the great outdoors, whether it&apos;s
-                  through e-bikes, e-scooters, or DIY projects. Our team of engineers and EV enthusiasts work tirelessly to ensure
-                  that every Maximum Lithium battery delivers the performance and reliability you need for your electric adventures.
+                <p className="animate-slide-up delay-200 text-gray-600 dark:text-gray-300">
+                  We believe in empowering individuals...
                 </p>
               </div>
-              <div className="relative h-[400px] rounded-lg overflow-hidden">
+              <div className="animate-slide-up delay-300 relative h-[400px] rounded-lg overflow-hidden">
                 <Image
                   src="/images/sfrideout.webp"
                   alt="Electric bike rider on a scenic trail"
