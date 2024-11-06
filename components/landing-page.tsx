@@ -239,17 +239,17 @@ export function LandingPageComponent() {
               <div className="animate-slide-up delay-100 flex flex-col items-center text-center">
                 <Zap className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
                 <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Unparalleled Power</h3>
-                <p className="text-gray-600 dark:text-gray-300">Experience longer rides and faster acceleration with our high-capacity batteries.</p>
+                <p className="text-gray-600 dark:text-gray-300">Experience the perfect balance of capacity and output with our high-performance battery systems designed for your specific needs.</p>
               </div>
               <div className="animate-slide-up delay-200 flex flex-col items-center text-center">
-                <Gauge className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
-                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Rapid Charging</h3>
-                <p className="text-gray-600 dark:text-gray-300">Get back on the trail quickly with our industry-leading charging speeds.</p>
+                <Award className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">High Quality Components</h3>
+                <p className="text-gray-600 dark:text-gray-300">Built with premium cells and advanced BMS technology for unmatched reliability and longevity in your electric adventures.</p>
               </div>
               <div className="animate-slide-up delay-300 flex flex-col items-center text-center">
-                <Award className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
-                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Eco-Friendly</h3>
-                <p className="text-gray-600 dark:text-gray-300">Reduce your carbon footprint with our sustainable and recyclable battery technology.</p>
+                <Gauge className="h-12 w-12 text-blue-600 dark:text-blue-400 mb-4" />
+                <h3 className="text-xl font-bold mb-2 text-blue-600 dark:text-blue-400">Full Customization</h3>
+                <p className="text-gray-600 dark:text-gray-300">Every pack is tailored to your specifications – from maximum output, voltage, and capacity to form factor and features.</p>
               </div>
             </div>
           </div>
@@ -266,7 +266,7 @@ export function LandingPageComponent() {
               </div>
               <div className="animate-slide-up delay-200 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md border border-blue-100 dark:border-gray-600">
                 <p className="text-gray-600 dark:text-gray-300 mb-4">&ldquo;As an electric skateboard builder, I swear by Maximum Lithium. Their batteries offer the perfect balance of power and weight for epic urban adventures.&rdquo;</p>
-                <p className="font-bold text-blue-600 dark:text-blue-400">- Mike T., DIY E-Board Builder</p>
+                <p className="font-bold text-blue-600 dark:text-blue-400">- Mike T., DIY E-Bike Builder</p>
               </div>
             </div>
           </div>
