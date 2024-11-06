@@ -207,15 +207,15 @@ export function LandingPageComponent() {
           <div className="container px-4 md:px-8 relative z-10 mx-auto max-w-[1400px]">
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-blue-600 dark:text-blue-400">
+                <h1 className="animate-slide-up text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-blue-600 dark:text-blue-400">
                   Maximize Your Rideouts
                 </h1>
-                <p className="mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
+                <p className="animate-slide-up delay-100 mx-auto max-w-[700px] text-gray-600 dark:text-gray-300 md:text-xl">
                   Maximum Lithium: Powering your adventures with cutting-edge battery technology for personal electric vehicles.
                 </p>
               </div>
               
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400">
+              <div className="animate-slide-up delay-200 pt-4 border-t border-gray-200 dark:border-gray-700 text-blue-600 dark:text-blue-400">
                 <Button 
                   className="w-full"
                   onClick={() => {
