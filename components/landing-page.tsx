@@ -279,10 +279,10 @@ export function LandingPageComponent() {
                   Our Rideout Ethos
                 </h2>
                 <p className="animate-slide-up delay-100 text-gray-600 dark:text-gray-300 mb-4">
-                  At Maximum Lithium, we&apos;re more than just a battery company...
+                  At Maximum Lithium, we're more than just a battery company. We're a community of riders, builders, and innovators who believe in pushing the boundaries of what's possible with electric vehicles.
                 </p>
                 <p className="animate-slide-up delay-200 text-gray-600 dark:text-gray-300">
-                  We believe in empowering individuals...
+                  We believe in empowering individuals to explore further, ride longer, and build better. Every battery we create is designed with the perfect balance of power, reliability, and safety – because we know what matters most when you're out there chasing that next adventure.
                 </p>
               </div>
               <div className="animate-slide-up delay-300 relative h-[400px] rounded-lg overflow-hidden">
